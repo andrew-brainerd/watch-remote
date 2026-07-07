@@ -1,8 +1,58 @@
+use std::time::Duration;
+
 use crate::roku::{self, DeviceInfo, RokuApp};
 
 #[tauri::command]
 pub fn ping() -> &'static str {
     "pong"
+}
+
+// brainerd-api base. Override at build time with WATCH_REMOTE_API_BASE; defaults to the local dev API.
+fn api_base() -> String {
+    option_env!("WATCH_REMOTE_API_BASE")
+        .unwrap_or("https://local.brainerd.dev:5002/api")
+        .to_string()
+}
+
+// Authenticated proxy to the brainerd-api /watch/* endpoints. Doing the HTTP from Rust (not the
+// webview) sidesteps CORS entirely and lets dev builds accept the local self-signed cert. The
+// caller passes a fresh Firebase ID token; `X-Client` routes it to the app auth path server-side.
+#[tauri::command]
+pub async fn watch_api(
+    method: String,
+    path: String,
+    token: String,
+    body: Option<serde_json::Value>,
+) -> Result<serde_json::Value, String> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(cfg!(debug_assertions))
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let url = format!("{}{}", api_base(), path);
+    let http_method =
+        reqwest::Method::from_bytes(method.to_uppercase().as_bytes()).map_err(|e| e.to_string())?;
+
+    let mut request = client
+        .request(http_method, &url)
+        .header("Authorization", format!("Bearer {token}"))
+        .header("X-Client", "watch-remote");
+    if let Some(payload) = body {
+        request = request.json(&payload);
+    }
+
+    let response = request.send().await.map_err(|e| e.to_string())?;
+    let status = response.status();
+    let text = response.text().await.map_err(|e| e.to_string())?;
+
+    if !status.is_success() {
+        return Err(format!("{} {}", status.as_u16(), text));
+    }
+    if text.is_empty() {
+        return Ok(serde_json::Value::Null);
+    }
+    serde_json::from_str(&text).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
