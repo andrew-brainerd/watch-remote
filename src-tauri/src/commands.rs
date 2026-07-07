@@ -23,6 +23,7 @@ pub async fn watch_api(
     path: String,
     token: String,
     body: Option<serde_json::Value>,
+    base: Option<String>,
 ) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(cfg!(debug_assertions))
@@ -30,7 +31,10 @@ pub async fn watch_api(
         .build()
         .map_err(|e| e.to_string())?;
 
-    let url = format!("{}{}", api_base(), path);
+    // The frontend passes the user-configured base (needed on iOS, where the dev hostname won't
+    // resolve); fall back to the compile-time default.
+    let resolved_base = base.filter(|b| !b.trim().is_empty()).unwrap_or_else(api_base);
+    let url = format!("{}{}", resolved_base.trim_end_matches('/'), path);
     let http_method =
         reqwest::Method::from_bytes(method.to_uppercase().as_bytes()).map_err(|e| e.to_string())?;
 
