@@ -48,3 +48,11 @@ export interface WatchListResponse {
   items: WatchListItem[];
   settings: WatchSettings;
 }
+
+export interface WatchSearchResult {
+  id: string;
+  title: string;
+  showType: ShowType;
+  year?: number;
+  poster?: string;
+}

@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Login } from '@/components/Login';
-import { Library } from '@/components/Library';
+import { WatchTracker } from '@/components/WatchTracker';
 import { DeviceBar } from '@/components/DeviceBar';
 import { Remote } from '@/components/Remote';
 
@@ -31,7 +31,7 @@ export const App = () => {
       </header>
 
       <DeviceBar />
-      <Library />
+      <WatchTracker />
       {active && <Remote ip={active.ip} />}
     </div>
   );
