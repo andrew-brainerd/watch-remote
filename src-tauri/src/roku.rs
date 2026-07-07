@@ -1,0 +1,137 @@
+use std::time::Duration;
+
+use serde::Serialize;
+
+// Roku External Control Protocol (ECP) lives on HTTP port 8060. All control is a POST to a path;
+// device/app info are GETs that return XML. No auth — same-LAN reachability is the only requirement.
+const ECP_PORT: u16 = 8060;
+const TIMEOUT: Duration = Duration::from_secs(5);
+
+#[derive(Debug, thiserror::Error)]
+pub enum RokuError {
+    #[error("request to Roku failed: {0}")]
+    Http(String),
+    #[error("Roku returned status {0}")]
+    Status(u16),
+    #[error("failed to parse Roku response: {0}")]
+    Xml(String),
+}
+
+impl From<reqwest::Error> for RokuError {
+    fn from(e: reqwest::Error) -> Self {
+        RokuError::Http(e.to_string())
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct DeviceInfo {
+    pub name: String,
+    pub model: String,
+    pub is_tv: bool,
+    pub power_on: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RokuApp {
+    pub id: String,
+    pub name: String,
+}
+
+fn client() -> Result<reqwest::Client, RokuError> {
+    reqwest::Client::builder().timeout(TIMEOUT).build().map_err(RokuError::from)
+}
+
+fn base(ip: &str) -> String {
+    format!("http://{ip}:{ECP_PORT}")
+}
+
+async fn post(url: &str) -> Result<(), RokuError> {
+    let resp = client()?.post(url).body("").send().await?;
+    if !resp.status().is_success() {
+        return Err(RokuError::Status(resp.status().as_u16()));
+    }
+    Ok(())
+}
+
+async fn get_text(url: &str) -> Result<String, RokuError> {
+    let resp = client()?.get(url).send().await?;
+    if !resp.status().is_success() {
+        return Err(RokuError::Status(resp.status().as_u16()));
+    }
+    Ok(resp.text().await?)
+}
+
+/// Launch (and optionally deep-link into) an app. `content_id`/`media_type` present = cast to a title.
+pub async fn launch(
+    ip: &str,
+    channel_id: &str,
+    content_id: Option<&str>,
+    media_type: Option<&str>,
+) -> Result<(), RokuError> {
+    let mut url = format!("{}/launch/{}", base(ip), channel_id);
+    let mut params: Vec<String> = Vec::new();
+    if let Some(cid) = content_id {
+        params.push(format!("contentId={}", urlencoding::encode(cid)));
+    }
+    if let Some(mt) = media_type {
+        params.push(format!("mediaType={}", urlencoding::encode(mt)));
+    }
+    if !params.is_empty() {
+        url.push('?');
+        url.push_str(&params.join("&"));
+    }
+    post(&url).await
+}
+
+pub async fn install(ip: &str, channel_id: &str) -> Result<(), RokuError> {
+    post(&format!("{}/install/{}", base(ip), channel_id)).await
+}
+
+pub async fn keypress(ip: &str, key: &str) -> Result<(), RokuError> {
+    post(&format!("{}/keypress/{}", base(ip), key)).await
+}
+
+/// Type a string into the TV's focused field, one `Lit_` keypress per character.
+pub async fn type_text(ip: &str, text: &str) -> Result<(), RokuError> {
+    for ch in text.chars() {
+        let encoded = urlencoding::encode(&ch.to_string()).into_owned();
+        post(&format!("{}/keypress/Lit_{}", base(ip), encoded)).await?;
+    }
+    Ok(())
+}
+
+pub async fn device_info(ip: &str) -> Result<DeviceInfo, RokuError> {
+    let xml = get_text(&format!("{}/query/device-info", base(ip))).await?;
+    let doc = roxmltree::Document::parse(&xml).map_err(|e| RokuError::Xml(e.to_string()))?;
+    let text_of = |tag: &str| -> String {
+        doc.descendants()
+            .find(|n| n.has_tag_name(tag))
+            .and_then(|n| n.text())
+            .unwrap_or("")
+            .trim()
+            .to_string()
+    };
+    let friendly = text_of("friendly-device-name");
+    let name = if friendly.is_empty() { text_of("user-device-name") } else { friendly };
+    Ok(DeviceInfo {
+        name: if name.is_empty() { ip.to_string() } else { name },
+        model: text_of("model-name"),
+        is_tv: text_of("is-tv") == "true",
+        power_on: text_of("power-mode") == "PowerOn",
+    })
+}
+
+pub async fn apps(ip: &str) -> Result<Vec<RokuApp>, RokuError> {
+    let xml = get_text(&format!("{}/query/apps", base(ip))).await?;
+    let doc = roxmltree::Document::parse(&xml).map_err(|e| RokuError::Xml(e.to_string()))?;
+    let apps = doc
+        .descendants()
+        .filter(|n| n.has_tag_name("app") && n.attribute("type") == Some("appl"))
+        .filter_map(|n| {
+            let id = n.attribute("id")?.to_string();
+            let name = n.text().unwrap_or("").trim().to_string();
+            Some(RokuApp { id, name })
+        })
+        .collect();
+    Ok(apps)
+}
