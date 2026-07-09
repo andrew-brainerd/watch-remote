@@ -1,6 +1,7 @@
 import { useDeviceStore } from '@/stores/deviceStore';
 import { rokuLaunch } from '@/api/ipc';
 import { removeFromWatch, updateWatchItem } from '@/api/watchApi';
+import { pickRokuDeepLink } from '@/utils/roku';
 import type { WatchListItem, WatchStatus } from '@/types/watch';
 
 const STATUS_ORDER: WatchStatus[] = ['watching', 'watchlist', 'completed', 'dropped'];
@@ -17,19 +18,12 @@ interface LibraryProps {
   onChanged: () => void | Promise<void>;
 }
 
-// Prefer a deep-linkable option on a service the user subscribes to; fall back to any deep link.
-const pickRoku = (item: WatchListItem, services: string[]) => {
-  const options = item.media?.streamingOptions ?? [];
-  const mine = options.find(o => o.roku && services.includes(o.service.id));
-  return (mine ?? options.find(o => o.roku))?.roku;
-};
-
 export const Library = ({ items, services, onChanged }: LibraryProps) => {
   const { devices, activeId } = useDeviceStore();
   const active = devices.find(d => d.id === activeId);
 
   const cast = (item: WatchListItem) => {
-    const roku = pickRoku(item, services);
+    const roku = pickRokuDeepLink(item, services);
     if (!active || !roku?.channelId) return;
     rokuLaunch(active.ip, roku.channelId, roku.contentId, roku.mediaType).catch(() => {});
   };
@@ -63,7 +57,7 @@ export const Library = ({ items, services, onChanged }: LibraryProps) => {
           </h2>
           <div className="flex flex-col gap-2">
             {group.items.map(item => {
-              const roku = pickRoku(item, services);
+              const roku = pickRokuDeepLink(item, services);
               return (
                 <div key={item.id} className="rounded-lg border border-line bg-panel p-2">
                   <div className="flex items-center gap-3">

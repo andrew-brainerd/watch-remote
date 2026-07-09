@@ -1,21 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { useDeviceStore } from '@/stores/deviceStore';
+import { useWatchStore } from '@/stores/watchStore';
 import { Login } from '@/components/Login';
-import { WatchTracker } from '@/components/WatchTracker';
+import { WatchView } from '@/components/WatchView';
+import { LibraryView } from '@/components/LibraryView';
 import { RemoteTab } from '@/components/RemoteTab';
 
 const TABS = [
   { id: 'watch', label: 'Watch' },
+  { id: 'library', label: 'Library' },
   { id: 'remote', label: 'Remote' }
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
 export const App = () => {
   const { user, ready, signOut } = useAuthStore();
-  const { devices, activeId } = useDeviceStore();
-  const active = devices.find(d => d.id === activeId);
+  const load = useWatchStore(s => s.load);
   const [tab, setTab] = useState<TabId>('watch');
+
+  useEffect(() => {
+    if (user) load();
+  }, [user, load]);
 
   if (!ready) {
     return <div className="flex min-h-full items-center justify-center text-sm text-neutral-500">Loading…</div>;
@@ -62,16 +67,7 @@ export const App = () => {
       </nav>
 
       <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-4">
-        {tab === 'watch' ? (
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-neutral-500">
-              {active ? `Casting to ${active.name}` : 'No device selected — add one in the Remote tab'}
-            </p>
-            <WatchTracker />
-          </div>
-        ) : (
-          <RemoteTab />
-        )}
+        {tab === 'watch' ? <WatchView /> : tab === 'library' ? <LibraryView /> : <RemoteTab />}
       </main>
     </div>
   );

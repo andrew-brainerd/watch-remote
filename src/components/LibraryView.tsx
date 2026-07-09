@@ -1,34 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getWatchList } from '@/api/watchApi';
-import type { WatchListResponse } from '@/types/watch';
+import { useMemo, useState } from 'react';
+import { useWatchStore } from '@/stores/watchStore';
 import { WatchSearch } from '@/components/WatchSearch';
 import { Library } from '@/components/Library';
 import { ServicesModal } from '@/components/ServicesModal';
 
-export const WatchTracker = () => {
-  const [data, setData] = useState<WatchListResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+export const LibraryView = () => {
+  const { data, loading, error, load } = useWatchStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
-
-  const refresh = useCallback(async () => {
-    try {
-      const res = await getWatchList();
-      setData(res);
-      setError(null);
-    } catch (e) {
-      setError(String(e));
-    }
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    refresh().finally(() => setLoading(false));
-  }, [refresh]);
 
   const items = data?.items ?? [];
   const services = data?.settings.services ?? [];
-  const existingIds = useMemo(() => new Set(items.map(i => i.id)), [items]);
+  const existingIds = useMemo(() => new Set(items.map(item => item.id)), [items]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -45,17 +27,17 @@ export const WatchTracker = () => {
         </button>
       </div>
 
-      <WatchSearch existingIds={existingIds} onChanged={refresh} />
+      <WatchSearch existingIds={existingIds} onChanged={load} />
 
-      {loading ? (
+      {loading && !data ? (
         <p className="text-sm text-neutral-500">Loading your library…</p>
       ) : error ? (
         <p className="text-sm text-red-400">Couldn&apos;t load library — {error}</p>
       ) : (
-        <Library items={items} services={services} onChanged={refresh} />
+        <Library items={items} services={services} onChanged={load} />
       )}
 
-      <ServicesModal open={settingsOpen} current={services} onClose={() => setSettingsOpen(false)} onSaved={refresh} />
+      <ServicesModal open={settingsOpen} current={services} onClose={() => setSettingsOpen(false)} onSaved={load} />
     </div>
   );
 };
