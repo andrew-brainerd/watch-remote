@@ -1,5 +1,5 @@
 import { useDeviceStore } from '@/stores/deviceStore';
-import { rokuLaunch } from '@/api/ipc';
+import { useCastStore } from '@/stores/castStore';
 import { removeFromWatch, updateWatchItem } from '@/api/watchApi';
 import { pickRokuDeepLink } from '@/utils/roku';
 import type { WatchListItem, WatchStatus } from '@/types/watch';
@@ -21,11 +21,12 @@ interface LibraryProps {
 export const Library = ({ items, services, onChanged }: LibraryProps) => {
   const { devices, activeId } = useDeviceStore();
   const active = devices.find(d => d.id === activeId);
+  const requestCast = useCastStore(s => s.request);
 
   const cast = (item: WatchListItem) => {
     const roku = pickRokuDeepLink(item, services);
     if (!active || !roku?.channelId) return;
-    rokuLaunch(active.ip, roku.channelId, roku.contentId, roku.mediaType).catch(() => {});
+    requestCast(item);
   };
 
   const changeStatus = async (item: WatchListItem, status: WatchStatus) => {

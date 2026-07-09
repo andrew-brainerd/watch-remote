@@ -1,6 +1,6 @@
 import { useWatchStore } from '@/stores/watchStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { rokuLaunch } from '@/api/ipc';
+import { useCastStore } from '@/stores/castStore';
 import { pickRokuDeepLink } from '@/utils/roku';
 import { useOrientation } from '@/hooks/useOrientation';
 import { CoverFlow } from '@/components/CoverFlow';
@@ -18,10 +18,12 @@ export const WatchView = () => {
 
   const items = (data?.items ?? []).filter(item => SHOWN_STATUSES.includes(item.status));
 
+  const requestCast = useCastStore(s => s.request);
+
   const cast = (item: WatchListItem) => {
     const roku = pickRokuDeepLink(item, services);
     if (!active || !roku?.channelId) return;
-    rokuLaunch(active.ip, roku.channelId, roku.contentId, roku.mediaType).catch(() => {});
+    requestCast(item);
   };
 
   if (loading && !data) return <p className="text-sm text-neutral-500">Loading your watchlist…</p>;

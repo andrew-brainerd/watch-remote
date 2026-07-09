@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useWatchStore } from '@/stores/watchStore';
+import { useOrientation } from '@/hooks/useOrientation';
 import { Login } from '@/components/Login';
 import { WatchView } from '@/components/WatchView';
 import { LibraryView } from '@/components/LibraryView';
 import { RemoteTab } from '@/components/RemoteTab';
+import { CastConfirmModal } from '@/components/CastConfirmModal';
 
 const TABS = [
   { id: 'watch', label: 'Watch' },
@@ -16,6 +18,7 @@ type TabId = (typeof TABS)[number]['id'];
 export const App = () => {
   const { user, ready, signOut } = useAuthStore();
   const load = useWatchStore(s => s.load);
+  const orientation = useOrientation();
   const [tab, setTab] = useState<TabId>('watch');
 
   useEffect(() => {
@@ -32,8 +35,13 @@ export const App = () => {
 
   return (
     <div
-      className="mx-auto flex h-full max-w-md flex-col"
-      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className={`mx-auto flex h-full flex-col ${orientation === 'landscape' ? 'w-full' : 'max-w-md'}`}
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)'
+      }}
     >
       <header className="flex items-center justify-between px-4 pb-2 pt-3">
         <div>
@@ -69,6 +77,8 @@ export const App = () => {
       <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-4">
         {tab === 'watch' ? <WatchView /> : tab === 'library' ? <LibraryView /> : <RemoteTab />}
       </main>
+
+      <CastConfirmModal />
     </div>
   );
 };
