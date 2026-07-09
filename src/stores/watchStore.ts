@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getWatchList } from '@/api/watchApi';
-import type { WatchListResponse } from '@/types/watch';
+import type { WatchListItem, WatchListResponse } from '@/types/watch';
 
 // Shared watch collection — loaded once and refreshed after mutations, so the Watch (poster) and
 // Library (management) tabs always agree.
@@ -9,6 +9,7 @@ interface WatchStore {
   loading: boolean;
   error: string | null;
   load: () => Promise<void>;
+  patchItem: (id: string, patch: Partial<WatchListItem>) => void;
 }
 
 export const useWatchStore = create<WatchStore>(set => ({
@@ -23,5 +24,12 @@ export const useWatchStore = create<WatchStore>(set => ({
     } catch (e) {
       set({ error: String(e), loading: false });
     }
-  }
+  },
+  // Optimistic local patch (e.g. saved preferred service) so a re-cast skips the picker immediately.
+  patchItem: (id, patch) =>
+    set(state =>
+      state.data
+        ? { data: { ...state.data, items: state.data.items.map(i => (i.id === id ? { ...i, ...patch } : i)) } }
+        : {}
+    )
 }));

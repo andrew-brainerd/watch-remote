@@ -17,7 +17,10 @@ export interface StreamingServiceRef {
 
 export interface StreamingOption {
   service: StreamingServiceRef;
+  // 'free' | 'subscription' | 'buy' | 'rent' | 'addon' — how the title is accessible on this service.
   type: string;
+  // Present when type === 'addon': the extra channel/subscription required (e.g. Crunchyroll on Prime).
+  addon?: { id: string; name: string };
   link: string;
   price?: { formatted: string };
   roku?: RokuDeepLink;
@@ -44,6 +47,8 @@ export interface WatchListItem {
   showType: ShowType;
   status: WatchStatus;
   media?: WatchMedia;
+  // Streaming service id the user picked to cast this title (persisted via the API).
+  preferredService?: string;
 }
 
 export interface WatchSettings {

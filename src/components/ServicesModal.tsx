@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getWatchServices, updateWatchSettings } from '@/api/watchApi';
-import type { StreamingServiceRef } from '@/types/watch';
+import { updateWatchSettings } from '@/api/watchApi';
+import { useServicesStore } from '@/stores/servicesStore';
+import { usePrefsStore } from '@/stores/prefsStore';
 
 interface ServicesModalProps {
   open: boolean;
@@ -10,22 +11,18 @@ interface ServicesModalProps {
 }
 
 export const ServicesModal = ({ open, current, onClose, onSaved }: ServicesModalProps) => {
-  const [services, setServices] = useState<StreamingServiceRef[]>([]);
+  const catalog = useServicesStore(s => s.catalog);
+  const loadCatalog = useServicesStore(s => s.load);
+  const hideOwnedAddons = usePrefsStore(s => s.hideOwnedAddons);
+  const setHideOwnedAddons = usePrefsStore(s => s.setHideOwnedAddons);
   const [selected, setSelected] = useState<Set<string>>(new Set(current));
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setSelected(new Set(current));
-    setLoading(true);
-    getWatchServices()
-      .then(s => {
-        setServices(s);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [open, current]);
+    loadCatalog();
+  }, [open, current, loadCatalog]);
 
   if (!open) return null;
 
@@ -57,11 +54,11 @@ export const ServicesModal = ({ open, current, onClose, onSaved }: ServicesModal
         <h3 className="text-sm font-semibold text-neutral-100">My streaming services</h3>
         <p className="mt-1 text-xs text-neutral-500">Casting prefers a title on one of these.</p>
 
-        {loading ? (
+        {catalog.length === 0 ? (
           <p className="mt-3 text-xs text-neutral-500">Loading…</p>
         ) : (
           <div className="mt-3 grid max-h-64 grid-cols-2 gap-1 overflow-y-auto">
-            {services.map(service => {
+            {catalog.map(service => {
               const on = selected.has(service.id);
               return (
                 <button
@@ -78,6 +75,21 @@ export const ServicesModal = ({ open, current, onClose, onSaved }: ServicesModal
             })}
           </div>
         )}
+
+        <label className="mt-4 flex items-start gap-2 text-xs text-neutral-300">
+          <input
+            type="checkbox"
+            checked={hideOwnedAddons}
+            onChange={e => setHideOwnedAddons(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-accent"
+          />
+          <span>
+            Hide add-on options for services I already have
+            <span className="mt-0.5 block text-[11px] text-neutral-500">
+              e.g. skip Prime&rsquo;s Crunchyroll add-on if you subscribe to Crunchyroll directly
+            </span>
+          </span>
+        </label>
 
         <div className="mt-4 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="rounded px-3 py-1.5 text-xs text-neutral-400 hover:text-white">

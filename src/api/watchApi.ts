@@ -31,8 +31,10 @@ export const searchWatch = (q: string): Promise<WatchSearchResult[]> =>
 export const addToWatch = (id: string, showType: ShowType, status?: WatchStatus): Promise<unknown> =>
   call('POST', '/watch/list', { id, showType, status });
 
-export const updateWatchItem = (id: string, patch: { status?: WatchStatus }): Promise<unknown> =>
-  call('PATCH', `/watch/list/${id}`, patch);
+export const updateWatchItem = (
+  id: string,
+  patch: { status?: WatchStatus; preferredService?: string }
+): Promise<unknown> => call('PATCH', `/watch/list/${id}`, patch);
 
 export const removeFromWatch = (id: string): Promise<unknown> => call('DELETE', `/watch/list/${id}`);
 
