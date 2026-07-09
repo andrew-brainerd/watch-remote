@@ -1,9 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// Dev default (works on the Mac). On a phone this hostname won't resolve — set it to the Mac's LAN IP
-// (e.g. https://192.168.4.x:5002/api) or the production API.
-export const DEFAULT_API_BASE = 'https://local.brainerd.dev:5002/api';
+// Production brainerd-api (mounts at `/`, valid cert — works on any device). Override via the
+// "Watch server" field for local dev (e.g. https://local.brainerd.dev:5002/api on the Mac, or the
+// Mac's LAN IP from a phone).
+export const DEFAULT_API_BASE = 'https://api.brainerd.dev';
 
 interface ConfigState {
   apiBase: string;
