@@ -1,5 +1,10 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  indexedDBLocalPersistence,
+  inMemoryPersistence,
+  initializeAuth
+} from 'firebase/auth';
 
 // Public Firebase web config (project: brainerd-fam) — shared with next-portfolio. Values come from
 // .env (see .env.example); these client keys are safe to ship in the app bundle.
@@ -13,4 +18,10 @@ const firebaseConfig = {
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
-export const firebaseAuth = getAuth(firebaseApp);
+
+// Use initializeAuth (not getAuth) with explicit persistence and no popup/redirect resolver. Inside a
+// WKWebView (Tauri iOS), getAuth's default init can hang on persistence/resolver setup; this tries
+// IndexedDB → localStorage → memory and skips the auth-domain iframe entirely.
+export const firebaseAuth = initializeAuth(firebaseApp, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence]
+});

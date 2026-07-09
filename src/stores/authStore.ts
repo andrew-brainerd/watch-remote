@@ -14,6 +14,10 @@ interface AuthState {
 export const useAuthStore = create<AuthState>(set => {
   onAuthStateChanged(firebaseAuth, user => set({ user, ready: true }));
 
+  // Safety net: never hang on the "Loading…" screen if auth init stalls — fall through to the login
+  // screen after a few seconds so the user can at least act.
+  setTimeout(() => set(state => (state.ready ? {} : { ready: true })), 4000);
+
   return {
     user: null,
     ready: false,

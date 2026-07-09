@@ -26,7 +26,10 @@ export const App = () => {
   }
 
   return (
-    <div className="mx-auto flex min-h-full max-w-md flex-col">
+    <div
+      className="mx-auto flex h-full max-w-md flex-col"
+      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
       <header className="flex items-center justify-between px-4 pb-2 pt-3">
         <div>
           <h1 className="text-base font-semibold text-neutral-100">Watch Remote</h1>
@@ -58,7 +61,7 @@ export const App = () => {
         ))}
       </nav>
 
-      <main className="flex-1 p-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-4">
         {tab === 'watch' ? (
           <div className="flex flex-col gap-3">
             <p className="text-xs text-neutral-500">
