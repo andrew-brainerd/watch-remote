@@ -1,16 +1,21 @@
 import { useMemo, useState } from 'react';
 import { useWatchStore } from '@/stores/watchStore';
+import { usePrefsStore } from '@/stores/prefsStore';
+import { requiresRental } from '@/utils/roku';
 import { WatchSearch } from '@/components/WatchSearch';
 import { Library } from '@/components/Library';
 import { ServicesModal } from '@/components/ServicesModal';
 
 export const LibraryView = () => {
   const { data, loading, error, load } = useWatchStore();
+  const showRentalTitles = usePrefsStore(s => s.showRentalTitles);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const items = data?.items ?? [];
+  const allItems = data?.items ?? [];
+  const items = allItems.filter(item => showRentalTitles || !requiresRental(item));
   const services = data?.settings.services ?? [];
-  const existingIds = useMemo(() => new Set(items.map(item => item.id)), [items]);
+  // Dedup search against the full list (including hidden rentals) so we don't re-offer an existing title.
+  const existingIds = useMemo(() => new Set(allItems.map(item => item.id)), [allItems]);
 
   return (
     <div className="flex flex-col gap-3">

@@ -1,7 +1,9 @@
 import { useWatchStore } from '@/stores/watchStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useCastStore } from '@/stores/castStore';
+import { usePrefsStore } from '@/stores/prefsStore';
 import { useOrientation } from '@/hooks/useOrientation';
+import { requiresRental } from '@/utils/roku';
 import { CoverFlow } from '@/components/CoverFlow';
 import type { WatchListItem, WatchStatus } from '@/types/watch';
 
@@ -13,8 +15,11 @@ export const WatchView = () => {
   const { devices, activeId } = useDeviceStore();
   const active = devices.find(d => d.id === activeId);
   const orientation = useOrientation();
+  const showRentalTitles = usePrefsStore(s => s.showRentalTitles);
 
-  const items = (data?.items ?? []).filter(item => SHOWN_STATUSES.includes(item.status));
+  const items = (data?.items ?? [])
+    .filter(item => SHOWN_STATUSES.includes(item.status))
+    .filter(item => showRentalTitles || !requiresRental(item));
 
   const requestCast = useCastStore(s => s.request);
 
