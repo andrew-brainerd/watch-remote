@@ -23,6 +23,12 @@ export interface StreamingOption {
   roku?: RokuDeepLink;
 }
 
+export interface Trailer {
+  site: string;
+  key: string;
+  name?: string;
+}
+
 export interface WatchMedia {
   id: string;
   showType: ShowType;
@@ -30,6 +36,7 @@ export interface WatchMedia {
   year?: number;
   poster?: string;
   streamingOptions: StreamingOption[];
+  trailer?: Trailer;
 }
 
 export interface WatchListItem {

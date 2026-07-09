@@ -1,5 +1,6 @@
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useCastStore } from '@/stores/castStore';
+import { useTrailerStore } from '@/stores/trailerStore';
 import { removeFromWatch, updateWatchItem } from '@/api/watchApi';
 import { pickRokuDeepLink } from '@/utils/roku';
 import type { WatchListItem, WatchStatus } from '@/types/watch';
@@ -22,6 +23,7 @@ export const Library = ({ items, services, onChanged }: LibraryProps) => {
   const { devices, activeId } = useDeviceStore();
   const active = devices.find(d => d.id === activeId);
   const requestCast = useCastStore(s => s.request);
+  const openTrailer = useTrailerStore(s => s.open);
 
   const cast = (item: WatchListItem) => {
     const roku = pickRokuDeepLink(item, services);
@@ -59,6 +61,7 @@ export const Library = ({ items, services, onChanged }: LibraryProps) => {
           <div className="flex flex-col gap-2">
             {group.items.map(item => {
               const roku = pickRokuDeepLink(item, services);
+              const trailer = item.media?.trailer;
               return (
                 <div key={item.id} className="rounded-lg border border-line bg-panel p-2">
                   <div className="flex items-center gap-3">
@@ -97,10 +100,19 @@ export const Library = ({ items, services, onChanged }: LibraryProps) => {
                         </option>
                       ))}
                     </select>
+                    {trailer && (
+                      <button
+                        type="button"
+                        onClick={() => openTrailer(item.media?.title ?? item.id, trailer.key)}
+                        className="text-xs text-neutral-400 transition-colors hover:text-white"
+                      >
+                        Trailer
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => remove(item)}
-                      className="text-xs text-neutral-500 transition-colors hover:text-red-400"
+                      className="ml-auto text-xs text-neutral-500 transition-colors hover:text-red-400"
                     >
                       Remove
                     </button>

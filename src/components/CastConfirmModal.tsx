@@ -1,6 +1,7 @@
 import { useCastStore } from '@/stores/castStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useWatchStore } from '@/stores/watchStore';
+import { useTrailerStore } from '@/stores/trailerStore';
 import { rokuLaunch } from '@/api/ipc';
 import { pickRokuDeepLink } from '@/utils/roku';
 
@@ -9,12 +10,16 @@ export const CastConfirmModal = () => {
   const { pending, clear } = useCastStore();
   const { devices, activeId } = useDeviceStore();
   const active = devices.find(d => d.id === activeId);
-  const services = useWatchStore(s => s.data?.settings.services ?? []);
+  // `?? []` must stay OUTSIDE the selector: returning a fresh [] from the selector makes Zustand's
+  // useSyncExternalStore see a new snapshot every render → infinite re-render → React #185.
+  const services = useWatchStore(s => s.data?.settings.services) ?? [];
+  const openTrailer = useTrailerStore(s => s.open);
 
   if (!pending) return null;
 
   const title = pending.media?.title ?? pending.id;
   const roku = pickRokuDeepLink(pending, services);
+  const trailer = pending.media?.trailer;
   const canCast = !!active && !!roku?.channelId;
 
   const confirm = () => {
@@ -70,6 +75,16 @@ export const CastConfirmModal = () => {
             </svg>
           </button>
         </div>
+
+        {trailer && (
+          <button
+            type="button"
+            onClick={() => openTrailer(title, trailer.key)}
+            className="mt-4 text-xs text-neutral-400 underline transition-colors hover:text-white"
+          >
+            Watch trailer
+          </button>
+        )}
       </div>
     </div>
   );

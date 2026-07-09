@@ -1,7 +1,6 @@
 import { useWatchStore } from '@/stores/watchStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useCastStore } from '@/stores/castStore';
-import { pickRokuDeepLink } from '@/utils/roku';
 import { useOrientation } from '@/hooks/useOrientation';
 import { CoverFlow } from '@/components/CoverFlow';
 import type { WatchListItem, WatchStatus } from '@/types/watch';
@@ -13,18 +12,15 @@ export const WatchView = () => {
   const { data, loading, error } = useWatchStore();
   const { devices, activeId } = useDeviceStore();
   const active = devices.find(d => d.id === activeId);
-  const services = data?.settings.services ?? [];
   const orientation = useOrientation();
 
   const items = (data?.items ?? []).filter(item => SHOWN_STATUSES.includes(item.status));
 
   const requestCast = useCastStore(s => s.request);
 
-  const cast = (item: WatchListItem) => {
-    const roku = pickRokuDeepLink(item, services);
-    if (!active || !roku?.channelId) return;
-    requestCast(item);
-  };
+  // Selecting a title always opens the confirm modal; it validates device + deep link and explains
+  // when a cast isn't possible, rather than silently doing nothing here.
+  const cast = (item: WatchListItem) => requestCast(item);
 
   if (loading && !data) return <p className="text-sm text-neutral-500">Loading your watchlist…</p>;
   if (error) return <p className="text-sm text-red-400">Couldn&apos;t load watchlist — {error}</p>;
@@ -34,7 +30,7 @@ export const WatchView = () => {
 
   // Landscape → the classic Cover Flow carousel; portrait → the poster grid.
   if (orientation === 'landscape') {
-    return <CoverFlow items={items} onCast={cast} canCast={!!active} />;
+    return <CoverFlow items={items} onCast={cast} />;
   }
 
   return (
