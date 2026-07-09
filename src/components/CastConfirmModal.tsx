@@ -59,7 +59,9 @@ export const CastConfirmModal = () => {
     castable[0];
   const roku = selected?.roku;
   const usingService = selected?.service;
-  const note = selected ? accessNote(selected) : null;
+  // Launch-only services (e.g. HBO Max) have a channel but no working deep link — cast opens the app.
+  const launchOnly = !!roku && !roku.contentId;
+  const note = launchOnly ? 'Opens the app — no direct link for this title' : selected ? accessNote(selected) : null;
   const canCast = !!active && !!roku?.channelId;
 
   const choose = (serviceId: string) => {
@@ -71,8 +73,13 @@ export const CastConfirmModal = () => {
 
   const confirm = () => {
     if (active && roku?.channelId) {
-      rokuLaunch(active.ip, roku.channelId, roku.contentId, roku.mediaType).catch(() => {});
-      // Prime/Disney land on a profile picker first — auto-select the default profile so it plays through.
+      if (roku.contentId) {
+        rokuLaunch(active.ip, roku.channelId, roku.contentId, roku.mediaType).catch(() => {});
+      } else {
+        // Launch-only: open the app to its home screen (no contentId → the app doesn't try to play).
+        rokuLaunch(active.ip, roku.channelId).catch(() => {});
+      }
+      // Prime/Disney/HBO land on a profile picker first — auto-select the default profile to move past it.
       if (PROFILE_GATE_APPS.has(roku.app)) {
         const { ip } = active;
         setTimeout(() => rokuKeypress(ip, 'Select').catch(() => {}), PROFILE_SELECT_DELAY_MS);

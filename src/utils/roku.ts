@@ -2,7 +2,7 @@ import type { RokuDeepLink, StreamingServiceRef, WatchListItem } from '@/types/w
 
 // Apps that show a "Who's watching?" profile picker on launch. After a deep-link cast we auto-press
 // Select to pick the highlighted default profile so the deep link proceeds. Confirmed on-device.
-export const PROFILE_GATE_APPS = new Set(['prime', 'disney']);
+export const PROFILE_GATE_APPS = new Set(['prime', 'disney', 'hbo']);
 
 export interface CastOption {
   service: StreamingServiceRef;
