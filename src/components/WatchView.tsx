@@ -2,6 +2,8 @@ import { useWatchStore } from '@/stores/watchStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { rokuLaunch } from '@/api/ipc';
 import { pickRokuDeepLink } from '@/utils/roku';
+import { useOrientation } from '@/hooks/useOrientation';
+import { CoverFlow } from '@/components/CoverFlow';
 import type { WatchListItem, WatchStatus } from '@/types/watch';
 
 // The "want to watch / watching now" set — the active watchlist, minus the completed/dropped archive.
@@ -12,6 +14,7 @@ export const WatchView = () => {
   const { devices, activeId } = useDeviceStore();
   const active = devices.find(d => d.id === activeId);
   const services = data?.settings.services ?? [];
+  const orientation = useOrientation();
 
   const items = (data?.items ?? []).filter(item => SHOWN_STATUSES.includes(item.status));
 
@@ -25,6 +28,11 @@ export const WatchView = () => {
   if (error) return <p className="text-sm text-red-400">Couldn&apos;t load watchlist — {error}</p>;
   if (items.length === 0) {
     return <p className="text-sm text-neutral-500">Nothing on your watchlist yet — add shows in the Library tab.</p>;
+  }
+
+  // Landscape → the classic Cover Flow carousel; portrait → the poster grid.
+  if (orientation === 'landscape') {
+    return <CoverFlow items={items} onCast={cast} canCast={!!active} />;
   }
 
   return (
