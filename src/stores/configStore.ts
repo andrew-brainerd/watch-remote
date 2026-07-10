@@ -1,15 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { isMobile } from '@/utils/platform';
 
-// Prod brainerd-api (mounts at `/`, valid cert — works on any device).
+// Prod brainerd-api (mounts at `/`, valid cert — reachable from any device). Real devices default here.
 export const PROD_API_BASE = 'https://api.brainerd.dev';
-// Local brainerd-api reachable from the phone: the Mac's LAN IP (run the API with HOST=0.0.0.0 so it
-// binds beyond localhost; dev mounts at `/api` on :5002). Debug iOS builds accept its self-signed cert.
-// Both must be on the same Wi-Fi; update the IP (or the "Watch server" field) if it changes.
-export const LOCAL_API_BASE = 'https://local.brainerd.dev:5002/api';
+// Local dev backend for the desktop. Use 127.0.0.1 (not local.brainerd.dev): the app's reqwest client
+// fails to connect to that hostname, and the debug build ignores the cert's hostname mismatch anyway.
+// Run the API with `pnpm dev` (add HOST=0.0.0.0 + set the phone's "Watch server" to the Mac's LAN IP to
+// point a device at local instead).
+export const LOCAL_API_BASE = 'https://127.0.0.1:5002/api';
 
-// Testing against local for now — flip to PROD_API_BASE to ship against prod.
-export const DEFAULT_API_BASE = LOCAL_API_BASE;
+// Mobile (device) builds default to prod so they work out in the world; the desktop dev build defaults
+// to local. Either can be overridden per-device via the "Watch server" field.
+export const DEFAULT_API_BASE = isMobile ? PROD_API_BASE : LOCAL_API_BASE;
 
 interface ConfigState {
   apiBase: string;
@@ -22,7 +25,7 @@ export const useConfigStore = create<ConfigState>()(
       apiBase: DEFAULT_API_BASE,
       setApiBase: base => set({ apiBase: base.trim() || DEFAULT_API_BASE })
     }),
-    // Key bumped so devices holding the old persisted prod base re-default to the local one above.
-    { name: 'watch-remote-config-local' }
+    // Key bumped so devices drop any stale persisted base and re-default to the platform base above.
+    { name: 'watch-remote-config-2' }
   )
 );
