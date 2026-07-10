@@ -33,7 +33,7 @@ export const addToWatch = (id: string, showType: ShowType, status?: WatchStatus)
 
 export const updateWatchItem = (
   id: string,
-  patch: { status?: WatchStatus; preferredService?: string }
+  patch: { status?: WatchStatus; preferredService?: string; favorite?: boolean }
 ): Promise<unknown> => call('PATCH', `/watch/list/${id}`, patch);
 
 export const removeFromWatch = (id: string): Promise<unknown> => call('DELETE', `/watch/list/${id}`);

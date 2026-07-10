@@ -49,6 +49,8 @@ export interface WatchListItem {
   media?: WatchMedia;
   // Streaming service id the user picked to cast this title (persisted via the API).
   preferredService?: string;
+  // Whether the user starred this title (shown in the Favorites tab); persisted via the API.
+  favorite?: boolean;
 }
 
 export interface WatchSettings {

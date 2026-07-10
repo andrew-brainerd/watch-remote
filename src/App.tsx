@@ -6,6 +6,7 @@ import { useOrientation } from '@/hooks/useOrientation';
 import { isMobile } from '@/utils/platform';
 import { Login } from '@/components/Login';
 import { WatchView } from '@/components/WatchView';
+import { FavoritesView } from '@/components/FavoritesView';
 import { LibraryView } from '@/components/LibraryView';
 import { RemoteTab } from '@/components/RemoteTab';
 import { CastConfirmModal } from '@/components/CastConfirmModal';
@@ -14,6 +15,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 
 const TABS = [
   { id: 'watch', label: 'Watch' },
+  { id: 'favorites', label: 'Favorites' },
   { id: 'library', label: 'Library' },
   { id: 'remote', label: 'Remote' }
 ] as const;
@@ -40,8 +42,10 @@ export const App = () => {
   // Landscape Cover Flow is a focused, full-screen browse mode: hide the app chrome (rotate back to
   // portrait to switch tabs). Mobile only — on desktop the "landscape" is just a wide window and hiding
   // the nav would be surprising. Only when there are titles to show, else the nav would be trapped.
-  const hasCoverFlow = !!watchItems?.some(i => i.status === 'watching' || i.status === 'watchlist');
-  const immersive = isMobile && orientation === 'landscape' && tab === 'watch' && hasCoverFlow;
+  const hasWatchCovers = !!watchItems?.some(i => i.status === 'watching' || i.status === 'watchlist');
+  const hasFavorites = !!watchItems?.some(i => i.favorite);
+  const coverTab = (tab === 'watch' && hasWatchCovers) || (tab === 'favorites' && hasFavorites);
+  const immersive = isMobile && orientation === 'landscape' && coverTab;
 
   if (!ready) {
     return <div className="flex min-h-full items-center justify-center text-sm text-neutral-500">Loading…</div>;
@@ -110,7 +114,15 @@ export const App = () => {
       )}
 
       <main className={`min-h-0 flex-1 overflow-y-auto overscroll-y-contain ${immersive ? 'p-2' : 'p-4'}`}>
-        {tab === 'watch' ? <WatchView /> : tab === 'library' ? <LibraryView /> : <RemoteTab />}
+        {tab === 'watch' ? (
+          <WatchView />
+        ) : tab === 'favorites' ? (
+          <FavoritesView />
+        ) : tab === 'library' ? (
+          <LibraryView />
+        ) : (
+          <RemoteTab />
+        )}
       </main>
 
       <CastConfirmModal />

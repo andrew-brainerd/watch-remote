@@ -1,6 +1,7 @@
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useCastStore } from '@/stores/castStore';
 import { useTrailerStore } from '@/stores/trailerStore';
+import { useWatchStore } from '@/stores/watchStore';
 import { removeFromWatch, updateWatchItem } from '@/api/watchApi';
 import { pickRokuDeepLink } from '@/utils/roku';
 import type { WatchListItem, WatchStatus } from '@/types/watch';
@@ -24,11 +25,18 @@ export const Library = ({ items, services, onChanged }: LibraryProps) => {
   const active = devices.find(d => d.id === activeId);
   const requestCast = useCastStore(s => s.request);
   const openTrailer = useTrailerStore(s => s.open);
+  const patchItem = useWatchStore(s => s.patchItem);
 
   const cast = (item: WatchListItem) => {
     const roku = pickRokuDeepLink(item, services);
     if (!active || !roku?.channelId) return;
     requestCast(item);
+  };
+
+  const toggleFavorite = (item: WatchListItem) => {
+    const favorite = !item.favorite;
+    patchItem(item.id, { favorite }); // optimistic
+    updateWatchItem(item.id, { favorite }).catch(() => {});
   };
 
   const changeStatus = async (item: WatchListItem, status: WatchStatus) => {
@@ -77,6 +85,26 @@ export const Library = ({ items, services, onChanged }: LibraryProps) => {
                         {item.media?.year ? ` · ${item.media.year}` : ''}
                       </p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => toggleFavorite(item)}
+                      aria-label={item.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                      title={item.favorite ? 'Favorited' : 'Add to favorites'}
+                      className={`shrink-0 p-1 transition-colors ${
+                        item.favorite ? 'text-amber-400' : 'text-neutral-500 hover:text-amber-400'
+                      }`}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-5 w-5"
+                        fill={item.favorite ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 2.5l2.9 6.06 6.6.62-4.98 4.4 1.46 6.48L12 16.9l-5.98 3.16 1.46-6.48L2.5 9.18l6.6-.62L12 2.5z" />
+                      </svg>
+                    </button>
                     <button
                       type="button"
                       disabled={!active || !roku?.channelId}
