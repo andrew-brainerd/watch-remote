@@ -10,6 +10,8 @@ export interface RokuDeviceInfo {
 export interface RokuApp {
   id: string;
   name: string;
+  // "app" = an installed channel; "input" = a TV input (HDMI, etc., often relabelled e.g. "Steam").
+  kind: 'app' | 'input';
 }
 
 // Cast (or plain-launch) an app. Pass contentId + mediaType to deep-link into a title.
@@ -26,3 +28,6 @@ export const rokuType = (ip: string, text: string): Promise<void> => invoke('rok
 export const rokuDeviceInfo = (ip: string): Promise<RokuDeviceInfo> => invoke('roku_device_info', { ip });
 
 export const rokuApps = (ip: string): Promise<RokuApp[]> => invoke('roku_apps', { ip });
+
+// An app/input icon as a data: URL (fetched from the TV). Rejects if the device has no icon for it.
+export const rokuAppIcon = (ip: string, id: string): Promise<string> => invoke('roku_app_icon', { ip, id });

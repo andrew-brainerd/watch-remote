@@ -35,6 +35,8 @@ pub struct DeviceInfo {
 pub struct RokuApp {
     pub id: String,
     pub name: String,
+    /// "app" for a channel (type="appl"), "input" for a TV input (type="tvin", e.g. HDMI).
+    pub kind: String,
 }
 
 fn client() -> Result<reqwest::Client, RokuError> {
@@ -121,17 +123,46 @@ pub async fn device_info(ip: &str) -> Result<DeviceInfo, RokuError> {
     })
 }
 
+/// Installed channels (type="appl") AND TV inputs (type="tvin", e.g. HDMI labelled "Steam").
+/// Both are launchable via `/launch/<id>`, so the Shortcuts view treats them uniformly.
 pub async fn apps(ip: &str) -> Result<Vec<RokuApp>, RokuError> {
     let xml = get_text(&format!("{}/query/apps", base(ip))).await?;
     let doc = roxmltree::Document::parse(&xml).map_err(|e| RokuError::Xml(e.to_string()))?;
     let apps = doc
         .descendants()
-        .filter(|n| n.has_tag_name("app") && n.attribute("type") == Some("appl"))
+        .filter(|n| n.has_tag_name("app"))
         .filter_map(|n| {
+            let kind = match n.attribute("type") {
+                Some("appl") => "app",
+                Some("tvin") => "input",
+                _ => return None,
+            };
             let id = n.attribute("id")?.to_string();
             let name = n.text().unwrap_or("").trim().to_string();
-            Some(RokuApp { id, name })
+            Some(RokuApp { id, name, kind: kind.to_string() })
         })
         .collect();
     Ok(apps)
+}
+
+/// The app/input icon as a `data:` URL (Roku serves a PNG/JPEG at /query/icon/<id>).
+/// TV inputs may not have one — the caller falls back to a text tile on error.
+pub async fn app_icon(ip: &str, id: &str) -> Result<String, RokuError> {
+    let resp = client()?.get(format!("{}/query/icon/{}", base(ip), id)).send().await?;
+    if !resp.status().is_success() {
+        return Err(RokuError::Status(resp.status().as_u16()));
+    }
+    let content_type = resp
+        .headers()
+        .get(reqwest::header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("image/png")
+        .to_string();
+    let bytes = resp.bytes().await?;
+    if bytes.is_empty() {
+        return Err(RokuError::Http("empty icon".to_string()));
+    }
+    use base64::Engine;
+    let encoded = base64::engine::general_purpose::STANDARD.encode(&bytes);
+    Ok(format!("data:{};base64,{}", content_type, encoded))
 }

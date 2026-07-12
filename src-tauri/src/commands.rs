@@ -95,3 +95,8 @@ pub async fn roku_device_info(ip: String) -> Result<DeviceInfo, String> {
 pub async fn roku_apps(ip: String) -> Result<Vec<RokuApp>, String> {
     roku::apps(&ip).await.map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+pub async fn roku_app_icon(ip: String, id: String) -> Result<String, String> {
+    roku::app_icon(&ip, &id).await.map_err(|e| e.to_string())
+}

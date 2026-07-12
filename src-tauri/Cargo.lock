@@ -4003,6 +4003,7 @@ dependencies = [
 name = "watch-remote"
 version = "0.0.0"
 dependencies = [
+ "base64 0.22.1",
  "reqwest 0.12.28",
  "roxmltree",
  "serde",

@@ -42,3 +42,33 @@ export const getWatchServices = (): Promise<StreamingServiceRef[]> => call('GET'
 
 export const updateWatchSettings = (services: string[]): Promise<unknown> =>
   call('PUT', '/watch/settings', { services });
+
+// --- Saved Roku devices (synced per user across the app's clients) ---
+
+export interface RemoteDevice {
+  id: string;
+  name: string;
+  ip: string;
+  model?: string;
+  pinnedShortcuts?: string[];
+  updatedAt?: number;
+}
+
+export const getDevices = (): Promise<RemoteDevice[]> => call('GET', '/watch/devices');
+
+export const saveDevice = (device: {
+  id: string;
+  name: string;
+  ip: string;
+  model?: string;
+  pinnedShortcuts?: string[];
+}): Promise<unknown> =>
+  call('PUT', `/watch/devices/${encodeURIComponent(device.id)}`, {
+    name: device.name,
+    ip: device.ip,
+    model: device.model,
+    pinnedShortcuts: device.pinnedShortcuts ?? []
+  });
+
+export const deleteDevice = (id: string): Promise<unknown> =>
+  call('DELETE', `/watch/devices/${encodeURIComponent(id)}`);

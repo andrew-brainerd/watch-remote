@@ -2,40 +2,46 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useWatchStore } from '@/stores/watchStore';
 import { useServicesStore } from '@/stores/servicesStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { useOrientation } from '@/hooks/useOrientation';
 import { isMobile } from '@/utils/platform';
 import { Login } from '@/components/Login';
 import { WatchView } from '@/components/WatchView';
 import { FavoritesView } from '@/components/FavoritesView';
 import { LibraryView } from '@/components/LibraryView';
+import { ShortcutsView } from '@/components/ShortcutsView';
 import { RemoteTab } from '@/components/RemoteTab';
 import { CastConfirmModal } from '@/components/CastConfirmModal';
 import { TrailerModal } from '@/components/TrailerModal';
 import { SettingsModal } from '@/components/SettingsModal';
 
 const TABS = [
+  { id: 'remote', label: 'Remote' },
   { id: 'watch', label: 'Watch' },
   { id: 'favorites', label: 'Favorites' },
   { id: 'library', label: 'Library' },
-  { id: 'remote', label: 'Remote' }
+  { id: 'shortcuts', label: 'Shortcuts' }
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
 export const App = () => {
-  const { user, ready, signOut } = useAuthStore();
+  const { user, ready } = useAuthStore();
   const load = useWatchStore(s => s.load);
   const loadServices = useServicesStore(s => s.load);
   // Stable selector (returns the stored array ref or undefined) — deriving the count outside avoids the
   // new-array-every-render trap that loops useSyncExternalStore.
   const watchItems = useWatchStore(s => s.data?.items);
   const orientation = useOrientation();
-  const [tab, setTab] = useState<TabId>('watch');
+  // Remote is the default view (quickest to reach); the watchlist loads in the background below.
+  const [tab, setTab] = useState<TabId>('remote');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
       load();
       loadServices();
+      // Pull the account's saved devices so they appear on this client too.
+      void useDeviceStore.getState().syncFromBackend();
     }
   }, [user, load, loadServices]);
 
@@ -83,19 +89,12 @@ export const App = () => {
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
             </button>
-            <button
-              type="button"
-              onClick={() => signOut()}
-              className="text-xs text-neutral-500 transition-colors hover:text-neutral-300"
-            >
-              Sign out
-            </button>
           </div>
         </header>
       )}
 
       {!immersive && (
-        <nav role="tablist" className="flex gap-1 border-b border-line px-4">
+        <nav role="tablist" className="flex gap-1 overflow-x-auto border-b border-line px-4">
           {TABS.map(t => (
             <button
               key={t.id}
@@ -103,7 +102,7 @@ export const App = () => {
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
-              className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+              className={`-mb-px shrink-0 whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 tab === t.id ? 'border-accent text-white' : 'border-transparent text-neutral-500 hover:text-neutral-300'
               }`}
             >
@@ -114,14 +113,16 @@ export const App = () => {
       )}
 
       <main className={`min-h-0 flex-1 overflow-y-auto overscroll-y-contain ${immersive ? 'p-2' : 'p-4'}`}>
-        {tab === 'watch' ? (
+        {tab === 'remote' ? (
+          <RemoteTab />
+        ) : tab === 'watch' ? (
           <WatchView />
         ) : tab === 'favorites' ? (
           <FavoritesView />
         ) : tab === 'library' ? (
           <LibraryView />
         ) : (
-          <RemoteTab />
+          <ShortcutsView />
         )}
       </main>
 
