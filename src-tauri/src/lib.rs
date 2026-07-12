@@ -3,7 +3,7 @@ mod roku;
 
 use commands::{
     ping, roku_app_icon, roku_apps, roku_device_info, roku_install, roku_keypress, roku_launch,
-    roku_type, watch_api,
+    roku_media_player, roku_type, watch_api,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -18,6 +18,7 @@ pub fn run() {
             roku_device_info,
             roku_apps,
             roku_app_icon,
+            roku_media_player,
             watch_api
         ])
         .run(tauri::generate_context!())

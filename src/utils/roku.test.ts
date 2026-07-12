@@ -143,4 +143,35 @@ describe('requiresRental', () => {
   it('is false when availability is unknown (no options)', () => {
     expect(requiresRental(withOptions([]))).toBe(false);
   });
+
+  it('is false for a free YouTube video', () => {
+    expect(
+      requiresRental(
+        withOptions([option('youtube', { app: 'YouTube', channelId: '837', contentId: 'dQw4w9WgXcQ', mediaType: 'video' }, 'free')])
+      )
+    ).toBe(false);
+  });
+});
+
+describe('imported YouTube videos', () => {
+  const youtubeItem = withOptions([
+    option('youtube', { app: 'YouTube', channelId: '837', contentId: 'dQw4w9WgXcQ', mediaType: 'video' }, 'free')
+  ]);
+
+  it('exposes the YouTube channel as a castable option', () => {
+    const options = castableServices(youtubeItem);
+    expect(options).toHaveLength(1);
+    expect(options[0]?.roku).toEqual({
+      app: 'YouTube',
+      channelId: '837',
+      contentId: 'dQw4w9WgXcQ',
+      mediaType: 'video'
+    });
+  });
+
+  it('picks the YouTube deep link even when the user has no services', () => {
+    const roku = pickRokuDeepLink(youtubeItem, []);
+    expect(roku?.channelId).toBe('837');
+    expect(roku?.mediaType).toBe('video');
+  });
 });

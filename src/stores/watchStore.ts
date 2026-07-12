@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getWatchList } from '@/api/watchApi';
+import { getWatchList, syncYoutubeWatchlist } from '@/api/watchApi';
 import type { WatchListItem, WatchListResponse } from '@/types/watch';
 
 // Shared watch collection — loaded once and refreshed after mutations, so the Watch (poster) and
@@ -12,13 +12,19 @@ interface WatchStore {
   patchItem: (id: string, patch: Partial<WatchListItem>) => void;
 }
 
-export const useWatchStore = create<WatchStore>(set => ({
+export const useWatchStore = create<WatchStore>((set, get) => ({
   data: null,
   loading: false,
   error: null,
   load: async () => {
+    // On the first load (app open), pull in newly-added "Watchlist" videos before fetching the list.
+    // Best-effort and only on the initial load, so mutation-triggered refreshes stay snappy.
+    const isInitial = !get().data;
     set({ loading: true });
     try {
+      if (isInitial) {
+        await syncYoutubeWatchlist().catch(() => {});
+      }
       const data = await getWatchList();
       set({ data, error: null, loading: false });
     } catch (e) {

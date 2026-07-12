@@ -14,6 +14,16 @@ export interface RokuApp {
   kind: 'app' | 'input';
 }
 
+export interface RokuMediaPlayer {
+  // "play" | "pause" | "stop" | "close" | "startup" | "buffer" | … — "close" when nothing is playing.
+  state: string;
+  app_id: string | null;
+  app_name: string | null;
+  position_ms: number | null;
+  duration_ms: number | null;
+  is_live: boolean;
+}
+
 // Cast (or plain-launch) an app. Pass contentId + mediaType to deep-link into a title.
 export const rokuLaunch = (ip: string, channelId: string, contentId?: string, mediaType?: string): Promise<void> =>
   invoke('roku_launch', { ip, channelId, contentId, mediaType });
@@ -31,3 +41,6 @@ export const rokuApps = (ip: string): Promise<RokuApp[]> => invoke('roku_apps', 
 
 // An app/input icon as a data: URL (fetched from the TV). Rejects if the device has no icon for it.
 export const rokuAppIcon = (ip: string, id: string): Promise<string> => invoke('roku_app_icon', { ip, id });
+
+// Current playback state on the device (ECP /query/media-player).
+export const rokuMediaPlayer = (ip: string): Promise<RokuMediaPlayer> => invoke('roku_media_player', { ip });

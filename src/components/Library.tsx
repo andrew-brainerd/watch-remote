@@ -80,9 +80,14 @@ export const Library = ({ items, services, onChanged }: LibraryProps) => {
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm text-neutral-100">{item.media?.title ?? item.id}</p>
-                      <p className="text-xs text-neutral-500">
-                        {item.media?.showType === 'series' ? 'Series' : 'Movie'}
-                        {item.media?.year ? ` · ${item.media.year}` : ''}
+                      <p className="truncate text-xs text-neutral-500">
+                        {item.media?.showType === 'video'
+                          ? item.media?.youtube?.channelTitle
+                            ? `YouTube · ${item.media.youtube.channelTitle}`
+                            : 'YouTube'
+                          : `${item.media?.showType === 'series' ? 'Series' : 'Movie'}${
+                              item.media?.year ? ` · ${item.media.year}` : ''
+                            }`}
                       </p>
                     </div>
                     <button

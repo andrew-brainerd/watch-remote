@@ -1,6 +1,6 @@
 // Subset of the brainerd-api /watch response shapes the app needs (mirrors src/types/watch.ts there).
 export type WatchStatus = 'watchlist' | 'watching' | 'completed' | 'dropped';
-export type ShowType = 'movie' | 'series';
+export type ShowType = 'movie' | 'series' | 'video';
 
 export interface RokuDeepLink {
   app: string;
@@ -34,6 +34,9 @@ export interface Trailer {
 
 export interface WatchMedia {
   id: string;
+  // Absent = 'motn' (streaming API); 'youtube' = an imported video (cast via the YouTube channel).
+  source?: 'motn' | 'youtube';
+  youtube?: { videoId: string; channelTitle?: string; duration?: number };
   showType: ShowType;
   title: string;
   year?: number;

@@ -39,6 +39,18 @@ pub struct RokuApp {
     pub kind: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct MediaPlayer {
+    /// "play", "pause", "stop", "close", "startup", "buffer", "none"… "close" when nothing is playing.
+    pub state: String,
+    /// The foreground media app (channel id / name), when something is playing.
+    pub app_id: Option<String>,
+    pub app_name: Option<String>,
+    pub position_ms: Option<u64>,
+    pub duration_ms: Option<u64>,
+    pub is_live: bool,
+}
+
 fn client() -> Result<reqwest::Client, RokuError> {
     reqwest::Client::builder().timeout(TIMEOUT).build().map_err(RokuError::from)
 }
@@ -143,6 +155,49 @@ pub async fn apps(ip: &str) -> Result<Vec<RokuApp>, RokuError> {
         })
         .collect();
     Ok(apps)
+}
+
+/// Current playback on the device (ECP /query/media-player). `state` is "close"/"none" when nothing is
+/// playing; the `plugin` element names the foreground media app; position/duration come as "<n> ms" text.
+pub async fn media_player(ip: &str) -> Result<MediaPlayer, RokuError> {
+    let xml = get_text(&format!("{}/query/media-player", base(ip))).await?;
+    let doc = roxmltree::Document::parse(&xml).map_err(|e| RokuError::Xml(e.to_string()))?;
+
+    let state = doc
+        .descendants()
+        .find(|n| n.has_tag_name("player"))
+        .and_then(|n| n.attribute("state"))
+        .unwrap_or("close")
+        .to_string();
+
+    let plugin = doc.descendants().find(|n| n.has_tag_name("plugin"));
+    let app_id = plugin.and_then(|n| n.attribute("id")).map(str::to_string);
+    let app_name = plugin.and_then(|n| n.attribute("name")).map(str::to_string);
+
+    // Position/duration arrive as e.g. "7050 ms" — take the leading integer.
+    let ms_of = |tag: &str| -> Option<u64> {
+        doc.descendants()
+            .find(|n| n.has_tag_name(tag))
+            .and_then(|n| n.text())
+            .and_then(|t| t.trim().split_whitespace().next())
+            .and_then(|d| d.parse::<u64>().ok())
+    };
+
+    let is_live = doc
+        .descendants()
+        .find(|n| n.has_tag_name("is_live"))
+        .and_then(|n| n.text())
+        .map(|t| t.trim() == "true")
+        .unwrap_or(false);
+
+    Ok(MediaPlayer {
+        state,
+        app_id,
+        app_name,
+        position_ms: ms_of("position"),
+        duration_ms: ms_of("duration"),
+        is_live,
+    })
 }
 
 /// The app/input icon as a `data:` URL (Roku serves a PNG/JPEG at /query/icon/<id>).

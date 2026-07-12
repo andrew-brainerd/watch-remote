@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::roku::{self, DeviceInfo, RokuApp};
+use crate::roku::{self, DeviceInfo, MediaPlayer, RokuApp};
 
 #[tauri::command]
 pub fn ping() -> &'static str {
@@ -99,4 +99,9 @@ pub async fn roku_apps(ip: String) -> Result<Vec<RokuApp>, String> {
 #[tauri::command]
 pub async fn roku_app_icon(ip: String, id: String) -> Result<String, String> {
     roku::app_icon(&ip, &id).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn roku_media_player(ip: String) -> Result<MediaPlayer, String> {
+    roku::media_player(&ip).await.map_err(|e| e.to_string())
 }

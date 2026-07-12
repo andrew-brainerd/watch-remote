@@ -1,4 +1,5 @@
 import { useDeviceStore } from '@/stores/deviceStore';
+import { NowPlaying } from '@/components/NowPlaying';
 import { Remote } from '@/components/Remote';
 
 export const RemoteTab = () => {
@@ -9,7 +10,10 @@ export const RemoteTab = () => {
   return (
     <div className="flex flex-col gap-4">
       {active ? (
-        <Remote ip={active.ip} />
+        <>
+          <NowPlaying ip={active.ip} />
+          <Remote ip={active.ip} />
+        </>
       ) : (
         <p className="text-center text-sm text-neutral-500">
           No device selected. Add or pick a Roku in Settings&nbsp;⚙.
