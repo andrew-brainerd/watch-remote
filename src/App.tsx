@@ -11,6 +11,7 @@ import { FavoritesView } from '@/components/FavoritesView';
 import { LibraryView } from '@/components/LibraryView';
 import { ShortcutsView } from '@/components/ShortcutsView';
 import { RemoteTab } from '@/components/RemoteTab';
+import { DeviceSwitcher } from '@/components/DeviceSwitcher';
 import { CastConfirmModal } from '@/components/CastConfirmModal';
 import { TrailerModal } from '@/components/TrailerModal';
 import { SettingsModal } from '@/components/SettingsModal';
@@ -73,10 +74,7 @@ export const App = () => {
     >
       {!immersive && (
         <header className="flex items-center justify-between px-4 pb-2 pt-3">
-          <div>
-            <h1 className="text-base font-semibold text-neutral-100">Watch Remote</h1>
-            <p className="text-[11px] text-neutral-500">{user.email}</p>
-          </div>
+          <DeviceSwitcher onManage={() => setSettingsOpen(true)} />
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -94,7 +92,7 @@ export const App = () => {
       )}
 
       {!immersive && (
-        <nav role="tablist" className="flex gap-1 overflow-x-auto border-b border-line px-4">
+        <nav role="tablist" className="no-scrollbar flex shrink-0 gap-1 overflow-x-auto overflow-y-hidden border-b border-line px-4">
           {TABS.map(t => (
             <button
               key={t.id}

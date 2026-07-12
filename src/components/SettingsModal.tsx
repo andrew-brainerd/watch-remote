@@ -12,6 +12,7 @@ interface SettingsModalProps {
 // Settings (behind the header cog): device management, the Watch-server config, viewing
 // preferences, and sign out — everything that used to live inline in the header / remote tab.
 export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
+  const user = useAuthStore(s => s.user);
   const signOut = useAuthStore(s => s.signOut);
   const showRentalTitles = usePrefsStore(s => s.showRentalTitles);
   const setShowRentalTitles = usePrefsStore(s => s.setShowRentalTitles);
@@ -92,25 +93,29 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
           </label>
         </section>
 
-        <div className="mt-5 flex items-center justify-between border-t border-line pt-3">
-          <button
-            type="button"
-            onClick={() => {
-              void signOut();
-              onClose();
-            }}
-            className="text-xs text-neutral-500 transition-colors hover:text-red-400"
-          >
-            Sign out
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-accent px-3 py-1.5 text-xs text-white transition-colors hover:bg-accent-hover"
-          >
-            Done
-          </button>
-        </div>
+        <section className="mt-5 border-t border-line pt-3">
+          <span className={label}>Account</span>
+          {user?.email && <p className="mt-1 truncate text-xs text-neutral-400">{user.email}</p>}
+          <div className="mt-2 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => {
+                void signOut();
+                onClose();
+              }}
+              className="text-xs text-neutral-500 transition-colors hover:text-red-400"
+            >
+              Sign out
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded bg-accent px-3 py-1.5 text-xs text-white transition-colors hover:bg-accent-hover"
+            >
+              Done
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );

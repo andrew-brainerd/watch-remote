@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+/* Hide the scrollbar on horizontally-scrolling strips (e.g. the tab bar) while keeping scroll. */
+@utility no-scrollbar {
+  scrollbar-width: none; /* Firefox / standards */
+  &::-webkit-scrollbar {
+    display: none; /* WebKit (WKWebView) + Chromium (WebView2) */
+  }
+}
+
 @theme {
   --color-canvas: #0a0a0b;
   --color-panel: #17171a;
