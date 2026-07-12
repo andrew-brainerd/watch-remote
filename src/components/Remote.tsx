@@ -31,19 +31,19 @@ interface RemoteButtonProps {
   onClick: () => void;
 }
 
+// Shared by the remote keys and the pinned-shortcut launchers so they're the same size/shape.
+export const remoteButtonClass =
+  'flex items-center justify-center rounded-lg border border-line py-2.5 text-neutral-200 transition-colors hover:border-neutral-500 active:bg-accent active:text-white';
+
+export const remoteIconClass = 'h-6 w-6';
+
 const RemoteButton = ({ label, icon, onClick }: RemoteButtonProps) => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-label={label}
-    title={label}
-    className="flex items-center justify-center rounded-lg border border-line bg-panel-2 py-3.5 text-neutral-200 transition-colors active:bg-accent active:text-white"
-  >
-    <span className="h-5 w-5">{icon}</span>
+  <button type="button" onClick={onClick} aria-label={label} title={label} className={remoteButtonClass}>
+    {icon}
   </button>
 );
 
-const iconClass = 'h-5 w-5';
+const iconClass = remoteIconClass;
 
 export const Remote = ({ ip }: RemoteProps) => {
   const key = (k: string) => () => {
@@ -51,7 +51,7 @@ export const Remote = ({ ip }: RemoteProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       <div className="grid grid-cols-3 gap-2">
         <RemoteButton label="Power" icon={<PowerIcon className={iconClass} />} onClick={key('PowerOff')} />
         <RemoteButton label="Home" icon={<HomeIcon className={iconClass} />} onClick={key('Home')} />

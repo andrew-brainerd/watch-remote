@@ -174,13 +174,21 @@ pub async fn media_player(ip: &str) -> Result<MediaPlayer, RokuError> {
     let app_id = plugin.and_then(|n| n.attribute("id")).map(str::to_string);
     let app_name = plugin.and_then(|n| n.attribute("name")).map(str::to_string);
 
-    // Position/duration arrive as e.g. "7050 ms" — take the leading integer.
+    // Position/duration arrive as e.g. "7050 ms" — take the leading integer. Prefer the text node;
+    // fall back to a same-named attribute on <player> (some apps report them that way). Note: many apps
+    // (e.g. Netflix) don't expose progress at all, so these can legitimately be None while playing.
+    let leading_u64 = |s: &str| s.trim().split_whitespace().next().and_then(|d| d.parse::<u64>().ok());
     let ms_of = |tag: &str| -> Option<u64> {
         doc.descendants()
             .find(|n| n.has_tag_name(tag))
             .and_then(|n| n.text())
-            .and_then(|t| t.trim().split_whitespace().next())
-            .and_then(|d| d.parse::<u64>().ok())
+            .and_then(leading_u64)
+            .or_else(|| {
+                doc.descendants()
+                    .find(|n| n.has_tag_name("player"))
+                    .and_then(|n| n.attribute(tag))
+                    .and_then(leading_u64)
+            })
     };
 
     let is_live = doc

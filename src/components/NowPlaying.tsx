@@ -75,7 +75,7 @@ export const NowPlaying = ({ ip }: NowPlayingProps) => {
 
   if (!isPlaying) {
     return (
-      <div className="rounded-xl border border-line bg-panel p-3 text-center text-sm text-neutral-500">
+      <div className="rounded-xl border border-line bg-panel p-2.5 text-center text-sm text-neutral-500">
         Nothing playing
       </div>
     );
@@ -87,11 +87,11 @@ export const NowPlaying = ({ ip }: NowPlayingProps) => {
   const pct = dur > 0 ? Math.min(100, (pos / dur) * 100) : 0;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-line bg-panel p-3">
+    <div className="flex items-center gap-3 rounded-xl border border-line bg-panel p-2.5">
       {icon ? (
-        <img src={icon} alt="" className="h-10 w-10 shrink-0 rounded object-contain" />
+        <img src={icon} alt="" className="h-9 w-9 shrink-0 rounded object-contain" />
       ) : (
-        <div className="h-10 w-10 shrink-0 rounded bg-panel-2" />
+        <div className="h-9 w-9 shrink-0 rounded bg-panel-2" />
       )}
 
       <div className="min-w-0 flex-1">
@@ -118,7 +118,7 @@ export const NowPlaying = ({ ip }: NowPlayingProps) => {
         type="button"
         onClick={() => rokuKeypress(ip, 'Play').catch(() => {})}
         aria-label={paused ? 'Resume' : 'Pause'}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white transition active:opacity-80"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-white transition active:opacity-80"
       >
         <span className="h-4 w-4">{paused ? <PlayIcon /> : <PauseIcon />}</span>
       </button>
