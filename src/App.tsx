@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useWatchStore } from '@/stores/watchStore';
 import { useServicesStore } from '@/stores/servicesStore';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { useBackgroundStore } from '@/stores/backgroundStore';
 import { useOrientation } from '@/hooks/useOrientation';
 import { isMobile } from '@/utils/platform';
 import { Login } from '@/components/Login';
@@ -37,15 +38,37 @@ export const App = () => {
   // Remote is the default view (quickest to reach); the watchlist loads in the background below.
   const [tab, setTab] = useState<TabId>('remote');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const lastFocusSyncRef = useRef(0);
 
   useEffect(() => {
     if (user) {
       load();
       loadServices();
-      // Pull the account's saved devices so they appear on this client too.
+      // Pull the account's saved devices + custom background so they appear on this client too.
       void useDeviceStore.getState().syncFromBackend();
+      void useBackgroundStore.getState().syncFromBackend();
     }
   }, [user, load, loadServices]);
+
+  // Re-pull the account background when the app regains focus (iOS foreground / desktop window focus), so
+  // a wallpaper changed on another device shows up without needing a fresh launch. Throttled so rapid
+  // focus toggles (e.g. desktop alt-tabbing) don't spam the endpoint.
+  useEffect(() => {
+    if (!user) return;
+    const maybeSync = () => {
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastFocusSyncRef.current < 2000) return;
+      lastFocusSyncRef.current = now;
+      void useBackgroundStore.getState().syncFromBackend();
+    };
+    document.addEventListener('visibilitychange', maybeSync);
+    window.addEventListener('focus', maybeSync);
+    return () => {
+      document.removeEventListener('visibilitychange', maybeSync);
+      window.removeEventListener('focus', maybeSync);
+    };
+  }, [user]);
 
   // Landscape Cover Flow is a focused, full-screen browse mode: hide the app chrome (rotate back to
   // portrait to switch tabs). Mobile only — on desktop the "landscape" is just a wide window and hiding

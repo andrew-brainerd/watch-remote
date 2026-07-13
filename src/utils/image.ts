@@ -1,7 +1,7 @@
-// Downscale + JPEG-compress an image File to a data URL small enough for localStorage (used for the
-// custom background wallpaper). The longest side is capped at `maxDim`. Side-effect (canvas/DOM), so it's
-// exempt from the util unit-test rule.
-export const fileToDownscaledDataUrl = (file: File, maxDim = 1280, quality = 0.82): Promise<string> =>
+// Downscale + JPEG-compress an image File to a data URL small enough to cache in localStorage AND sync
+// to the account (kept well under Firestore's 1 MiB doc cap). The longest side is capped at `maxDim`.
+// Side-effect (canvas/DOM), so it's exempt from the util unit-test rule.
+export const fileToDownscaledDataUrl = (file: File, maxDim = 1080, quality = 0.8): Promise<string> =>
   new Promise((resolve, reject) => {
     const objectUrl = URL.createObjectURL(file);
     const img = new Image();

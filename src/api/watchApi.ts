@@ -77,3 +77,15 @@ export const saveDevice = (device: {
 
 export const deleteDevice = (id: string): Promise<unknown> =>
   call('DELETE', `/watch/devices/${encodeURIComponent(id)}`);
+
+// --- Custom background (synced per user across clients) ---
+
+export interface AccountBackground {
+  image: string | null;
+  blur: number;
+}
+
+export const getBackground = (): Promise<AccountBackground> => call('GET', '/watch/background');
+
+export const saveBackground = (background: AccountBackground): Promise<unknown> =>
+  call('PUT', '/watch/background', background);
