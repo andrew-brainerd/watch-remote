@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useConfigStore } from '@/stores/configStore';
 import { usePrefsStore } from '@/stores/prefsStore';
+import { MAX_BLUR, useBackgroundStore } from '@/stores/backgroundStore';
+import { fileToDownscaledDataUrl } from '@/utils/image';
 import { DeviceBar } from '@/components/DeviceBar';
 
 interface SettingsModalProps {
@@ -19,6 +21,27 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
   const apiBase = useConfigStore(s => s.apiBase);
   const setApiBase = useConfigStore(s => s.setApiBase);
   const [serverDraft, setServerDraft] = useState(apiBase);
+
+  const bgImage = useBackgroundStore(s => s.image);
+  const blur = useBackgroundStore(s => s.blur);
+  const setBgImage = useBackgroundStore(s => s.setImage);
+  const setBlur = useBackgroundStore(s => s.setBlur);
+  const clearBg = useBackgroundStore(s => s.clear);
+  const [bgBusy, setBgBusy] = useState(false);
+
+  const handleBgFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setBgBusy(true);
+    try {
+      setBgImage(await fileToDownscaledDataUrl(file));
+    } catch {
+      // ignore — a bad/unsupported image just leaves the current background
+    } finally {
+      setBgBusy(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -91,6 +114,55 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
               </span>
             </span>
           </label>
+        </section>
+
+        <section className="mt-4">
+          <span className={label}>Background</span>
+          <div className="mt-2 flex items-center gap-3">
+            {bgImage ? (
+              <div
+                className="h-12 w-12 shrink-0 rounded border border-line bg-cover bg-center"
+                style={{ backgroundImage: `url(${bgImage})` }}
+              />
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded border border-line bg-panel-2 text-neutral-600">
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  <circle cx="8.5" cy="9.5" r="1.5" />
+                  <path d="M4 17l5-5 4 4 3-3 4 4" />
+                </svg>
+              </div>
+            )}
+            <label className="cursor-pointer rounded border border-line bg-panel-2 px-2 py-1 text-xs text-neutral-300">
+              {bgBusy ? 'Processing…' : bgImage ? 'Change' : 'Choose image'}
+              <input type="file" accept="image/*" onChange={handleBgFile} className="hidden" />
+            </label>
+            {bgImage && (
+              <button
+                type="button"
+                onClick={clearBg}
+                className="text-xs text-neutral-500 transition-colors hover:text-red-400"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          {bgImage && (
+            <label className="mt-3 block text-xs text-neutral-400">
+              <span className="mb-1 flex items-center justify-between">
+                <span>Blur</span>
+                <span className="text-neutral-500">{blur}px</span>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={MAX_BLUR}
+                value={blur}
+                onChange={e => setBlur(Number(e.target.value))}
+                className="w-full accent-accent"
+              />
+            </label>
+          )}
         </section>
 
         <section className="mt-5 border-t border-line pt-3">

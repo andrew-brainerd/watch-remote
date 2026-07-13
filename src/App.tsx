@@ -15,6 +15,7 @@ import { DeviceSwitcher } from '@/components/DeviceSwitcher';
 import { CastConfirmModal } from '@/components/CastConfirmModal';
 import { TrailerModal } from '@/components/TrailerModal';
 import { SettingsModal } from '@/components/SettingsModal';
+import { Background } from '@/components/Background';
 
 const TABS = [
   { id: 'remote', label: 'Remote' },
@@ -63,70 +64,78 @@ export const App = () => {
   }
 
   return (
-    <div
-      className={`mx-auto flex h-full flex-col ${isMobile && orientation === 'portrait' ? 'max-w-md' : 'w-full'}`}
-      style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)'
-      }}
-    >
-      {!immersive && (
-        <header className="flex items-center justify-between px-4 pb-2 pt-3">
-          <DeviceSwitcher onManage={() => setSettingsOpen(true)} />
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-label="Settings"
-              onClick={() => setSettingsOpen(true)}
-              className="text-neutral-500 transition-colors hover:text-neutral-300"
-            >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-            </button>
-          </div>
-        </header>
-      )}
-
-      {!immersive && (
-        <nav role="tablist" className="no-scrollbar flex shrink-0 gap-1 overflow-x-auto overflow-y-hidden border-b border-line px-4">
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={`-mb-px shrink-0 whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                tab === t.id ? 'border-accent text-white' : 'border-transparent text-neutral-500 hover:text-neutral-300'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
-      )}
-
-      <main className={`min-h-0 flex-1 overflow-y-auto overscroll-y-contain ${immersive ? 'p-2' : 'p-4'}`}>
-        {tab === 'remote' ? (
-          <RemoteTab />
-        ) : tab === 'watch' ? (
-          <WatchView />
-        ) : tab === 'favorites' ? (
-          <FavoritesView />
-        ) : tab === 'library' ? (
-          <LibraryView />
-        ) : (
-          <ShortcutsView />
+    <>
+      <Background />
+      <div
+        className={`relative z-10 mx-auto flex h-full flex-col ${isMobile && orientation === 'portrait' ? 'max-w-md' : 'w-full'}`}
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)'
+        }}
+      >
+        {!immersive && (
+          <header className="flex items-center justify-between px-4 pb-2 pt-3">
+            <DeviceSwitcher onManage={() => setSettingsOpen(true)} />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                aria-label="Settings"
+                onClick={() => setSettingsOpen(true)}
+                className="text-neutral-500 transition-colors hover:text-neutral-300"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              </button>
+            </div>
+          </header>
         )}
-      </main>
 
-      <CastConfirmModal />
-      <TrailerModal />
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-    </div>
+        {!immersive && (
+          <nav
+            role="tablist"
+            className="no-scrollbar flex shrink-0 gap-1 overflow-x-auto overflow-y-hidden border-b border-line px-4"
+          >
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.id}
+                onClick={() => setTab(t.id)}
+                className={`-mb-px shrink-0 whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                  tab === t.id
+                    ? 'border-accent text-white'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-300'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
+        )}
+
+        <main className={`min-h-0 flex-1 overflow-y-auto overscroll-y-contain ${immersive ? 'p-2' : 'p-4'}`}>
+          {tab === 'remote' ? (
+            <RemoteTab />
+          ) : tab === 'watch' ? (
+            <WatchView />
+          ) : tab === 'favorites' ? (
+            <FavoritesView />
+          ) : tab === 'library' ? (
+            <LibraryView />
+          ) : (
+            <ShortcutsView />
+          )}
+        </main>
+
+        <CastConfirmModal />
+        <TrailerModal />
+        <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      </div>
+    </>
   );
 };
