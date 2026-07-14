@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useConfigStore } from '@/stores/configStore';
 import { usePrefsStore } from '@/stores/prefsStore';
 import { MAX_BLUR, useBackgroundStore } from '@/stores/backgroundStore';
+import { getYoutubeConnection, syncYoutubeWatchlist } from '@/api/watchApi';
 import { fileToDownscaledDataUrl } from '@/utils/image';
 import { DeviceBar } from '@/components/DeviceBar';
 
@@ -18,6 +19,8 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
   const signOut = useAuthStore(s => s.signOut);
   const showRentalTitles = usePrefsStore(s => s.showRentalTitles);
   const setShowRentalTitles = usePrefsStore(s => s.setShowRentalTitles);
+  const switchToRemoteOnCast = usePrefsStore(s => s.switchToRemoteOnCast);
+  const setSwitchToRemoteOnCast = usePrefsStore(s => s.setSwitchToRemoteOnCast);
   const apiBase = useConfigStore(s => s.apiBase);
   const setApiBase = useConfigStore(s => s.setApiBase);
   const [serverDraft, setServerDraft] = useState(apiBase);
@@ -40,6 +43,45 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
       // ignore — a bad/unsupported image just leaves the current background
     } finally {
       setBgBusy(false);
+    }
+  };
+
+  const [ytConnected, setYtConnected] = useState<boolean | null>(null);
+  const [ytSyncing, setYtSyncing] = useState(false);
+  const [ytMsg, setYtMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setYtMsg(null);
+    let cancelled = false;
+    getYoutubeConnection()
+      .then(r => !cancelled && setYtConnected(r.connected))
+      .catch(() => !cancelled && setYtConnected(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  const syncYoutube = async () => {
+    setYtSyncing(true);
+    setYtMsg(null);
+    try {
+      const result = await syncYoutubeWatchlist();
+      if (result.connected === false) {
+        setYtConnected(false);
+      } else if (result.playlistFound === false) {
+        setYtMsg('No YouTube playlist named “Watchlist” found.');
+      } else {
+        setYtMsg(
+          result.imported > 0
+            ? `Imported ${result.imported} new video${result.imported === 1 ? '' : 's'}.`
+            : 'Up to date.'
+        );
+      }
+    } catch {
+      setYtMsg('Sync failed. Please try again.');
+    } finally {
+      setYtSyncing(false);
     }
   };
 
@@ -114,6 +156,20 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
               </span>
             </span>
           </label>
+          <label className="mt-3 flex items-start gap-2 text-xs text-neutral-300">
+            <input
+              type="checkbox"
+              checked={switchToRemoteOnCast}
+              onChange={e => setSwitchToRemoteOnCast(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-accent"
+            />
+            <span>
+              Switch to Remote after casting
+              <span className="mt-0.5 block text-[11px] text-neutral-500">
+                Jump to the Remote tab when you cast, to see now-playing and controls
+              </span>
+            </span>
+          </label>
         </section>
 
         <section className="mt-4">
@@ -162,6 +218,36 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
                 className="w-full accent-accent"
               />
             </label>
+          )}
+        </section>
+
+        <section className="mt-4">
+          <span className={label}>YouTube</span>
+          {ytConnected === null ? (
+            <p className="mt-2 text-xs text-neutral-500">Checking…</p>
+          ) : ytConnected ? (
+            <>
+              <p className="mt-1 text-xs text-neutral-400">
+                Connected. Your <span className="text-neutral-300">Watchlist</span> playlist syncs into your library
+                automatically on open.
+              </p>
+              <div className="mt-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={syncYoutube}
+                  disabled={ytSyncing}
+                  className="rounded border border-line bg-panel-2 px-2 py-1 text-xs text-neutral-300 disabled:opacity-40"
+                >
+                  {ytSyncing ? 'Syncing…' : 'Sync now'}
+                </button>
+                {ytMsg && <span className="text-[11px] text-neutral-500">{ytMsg}</span>}
+              </div>
+            </>
+          ) : (
+            <p className="mt-1 text-xs text-neutral-500">
+              Not connected. Connect your YouTube account on the web at{' '}
+              <span className="text-neutral-300">brainerd.dev/watch</span> to import your Watchlist playlist.
+            </p>
           )}
         </section>
 

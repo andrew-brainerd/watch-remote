@@ -10,6 +10,9 @@ interface PrefsState {
   // Show titles that are only available to rent or buy (not included in any subscription).
   showRentalTitles: boolean;
   setShowRentalTitles: (value: boolean) => void;
+  // After confirming a cast, jump to the Remote tab (to see now-playing / control playback).
+  switchToRemoteOnCast: boolean;
+  setSwitchToRemoteOnCast: (value: boolean) => void;
 }
 
 export const usePrefsStore = create<PrefsState>()(
@@ -18,7 +21,9 @@ export const usePrefsStore = create<PrefsState>()(
       hideOwnedAddons: true,
       setHideOwnedAddons: hideOwnedAddons => set({ hideOwnedAddons }),
       showRentalTitles: true,
-      setShowRentalTitles: showRentalTitles => set({ showRentalTitles })
+      setShowRentalTitles: showRentalTitles => set({ showRentalTitles }),
+      switchToRemoteOnCast: true,
+      setSwitchToRemoteOnCast: switchToRemoteOnCast => set({ switchToRemoteOnCast })
     }),
     { name: 'watch-remote-prefs' }
   )

@@ -5,6 +5,8 @@ import { useWatchStore } from '@/stores/watchStore';
 import { useTrailerStore } from '@/stores/trailerStore';
 import { useServicesStore } from '@/stores/servicesStore';
 import { usePrefsStore } from '@/stores/prefsStore';
+import { useCastTitleStore } from '@/stores/castTitleStore';
+import { useNavStore } from '@/stores/navStore';
 import { rokuKeypress, rokuLaunch } from '@/api/ipc';
 import { updateWatchItem } from '@/api/watchApi';
 import { accessLabel, accessNote, castableServices, ownsAddon, PROFILE_GATE_APPS } from '@/utils/roku';
@@ -27,6 +29,8 @@ export const CastConfirmModal = () => {
   const openTrailer = useTrailerStore(s => s.open);
   const catalog = useServicesStore(s => s.catalog);
   const hideOwnedAddons = usePrefsStore(s => s.hideOwnedAddons);
+  const switchToRemoteOnCast = usePrefsStore(s => s.switchToRemoteOnCast);
+  const setCastTitle = useCastTitleStore(s => s.setCastTitle);
 
   // Just-picked service (this session) + a flag to re-open the picker via "Change". Reset per title.
   const [chosen, setChosen] = useState<string | undefined>(undefined);
@@ -73,6 +77,8 @@ export const CastConfirmModal = () => {
 
   const confirm = () => {
     if (active && roku?.channelId) {
+      // Remember what we cast so now-playing can show the real title (the Roku doesn't report it).
+      setCastTitle(active.ip, title, roku.channelId);
       if (roku.contentId) {
         rokuLaunch(active.ip, roku.channelId, roku.contentId, roku.mediaType).catch(() => {});
       } else {
@@ -84,6 +90,8 @@ export const CastConfirmModal = () => {
         const { ip } = active;
         setTimeout(() => rokuKeypress(ip, 'Select').catch(() => {}), PROFILE_SELECT_DELAY_MS);
       }
+      // Jump to the Remote tab to see now-playing / control playback (configurable in Settings).
+      if (switchToRemoteOnCast) useNavStore.getState().setTab('remote');
     }
     clear();
   };

@@ -4,6 +4,7 @@ import { useWatchStore } from '@/stores/watchStore';
 import { useServicesStore } from '@/stores/servicesStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useBackgroundStore } from '@/stores/backgroundStore';
+import { useNavStore, type TabId } from '@/stores/navStore';
 import { useOrientation } from '@/hooks/useOrientation';
 import { isMobile } from '@/utils/platform';
 import { Login } from '@/components/Login';
@@ -18,14 +19,13 @@ import { TrailerModal } from '@/components/TrailerModal';
 import { SettingsModal } from '@/components/SettingsModal';
 import { Background } from '@/components/Background';
 
-const TABS = [
+const TABS: { id: TabId; label: string }[] = [
   { id: 'remote', label: 'Remote' },
   { id: 'watch', label: 'Watch' },
   { id: 'favorites', label: 'Favorites' },
   { id: 'library', label: 'Library' },
   { id: 'shortcuts', label: 'Shortcuts' }
-] as const;
-type TabId = (typeof TABS)[number]['id'];
+];
 
 export const App = () => {
   const { user, ready } = useAuthStore();
@@ -36,7 +36,8 @@ export const App = () => {
   const watchItems = useWatchStore(s => s.data?.items);
   const orientation = useOrientation();
   // Remote is the default view (quickest to reach); the watchlist loads in the background below.
-  const [tab, setTab] = useState<TabId>('remote');
+  const tab = useNavStore(s => s.tab);
+  const setTab = useNavStore(s => s.setTab);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const lastFocusSyncRef = useRef(0);
 

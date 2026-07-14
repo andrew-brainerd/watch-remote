@@ -27,8 +27,16 @@ export const getWatchList = (): Promise<WatchListResponse> => call('GET', '/watc
 
 // Import net-new videos from the connected account's YouTube "Watchlist" playlist. No-op if the user
 // hasn't connected YouTube or has no such playlist. Fired on app open before loading the list.
-export const syncYoutubeWatchlist = (): Promise<{ imported: number; skipped: number }> =>
-  call('POST', '/watch/youtube/sync');
+export interface YoutubeSyncResult {
+  imported: number;
+  skipped: number;
+  connected?: boolean;
+  playlistFound?: boolean;
+}
+
+export const getYoutubeConnection = (): Promise<{ connected: boolean }> => call('GET', '/watch/youtube/connection');
+
+export const syncYoutubeWatchlist = (): Promise<YoutubeSyncResult> => call('POST', '/watch/youtube/sync');
 
 export const searchWatch = (q: string): Promise<WatchSearchResult[]> =>
   call('GET', `/watch/search?q=${encodeURIComponent(q)}`);
