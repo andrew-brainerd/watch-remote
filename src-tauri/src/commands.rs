@@ -1,6 +1,19 @@
+use std::error::Error;
 use std::time::Duration;
 
 use crate::roku::{self, DeviceInfo, MediaPlayer, RokuApp};
+
+// reqwest's Display gives only a generic label ("error decoding response body") and drops the cause,
+// which is where the actual reason (timeout, closed connection, TLS failure) lives.
+fn describe(err: &dyn Error) -> String {
+    let mut message = err.to_string();
+    let mut source = err.source();
+    while let Some(cause) = source {
+        message.push_str(&format!(": {cause}"));
+        source = cause.source();
+    }
+    message
+}
 
 #[tauri::command]
 pub fn ping() -> &'static str {
@@ -27,9 +40,9 @@ pub async fn watch_api(
 ) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(cfg!(debug_assertions))
-        .timeout(Duration::from_secs(15))
+        .timeout(Duration::from_secs(60))
         .build()
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| describe(&e))?;
 
     // The frontend passes the user-configured base (needed on iOS, where the dev hostname won't
     // resolve); fall back to the compile-time default.
@@ -46,9 +59,9 @@ pub async fn watch_api(
         request = request.json(&payload);
     }
 
-    let response = request.send().await.map_err(|e| e.to_string())?;
+    let response = request.send().await.map_err(|e| describe(&e))?;
     let status = response.status();
-    let text = response.text().await.map_err(|e| e.to_string())?;
+    let text = response.text().await.map_err(|e| describe(&e))?;
 
     if !status.is_success() {
         return Err(format!("{} {}", status.as_u16(), text));
@@ -56,7 +69,7 @@ pub async fn watch_api(
     if text.is_empty() {
         return Ok(serde_json::Value::Null);
     }
-    serde_json::from_str(&text).map_err(|e| e.to_string())
+    serde_json::from_str(&text).map_err(|e| describe(&e))
 }
 
 #[tauri::command]
