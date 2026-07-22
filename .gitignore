@@ -13,3 +13,7 @@ src-tauri/gen/
 .env
 .env.local
 .env.*.local
+
+# Raw icon candidates + preview contact sheets (17MB of Gemini output).
+# The approved master `art/icon-master.png` IS committed — it regenerates the whole set via `pnpm icons`.
+art/generated/

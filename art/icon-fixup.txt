@@ -1,0 +1,17 @@
+Recreate the attached illustration EXACTLY as it is, preserving the character, pose, tilt angle,
+linework, cel shading, glowing amber buttons, glowing antenna tip, warm amber eyes, expression, and
+the overall warm amber background — with ONE change:
+
+REMOVE the blocky stepped pixel-art ornaments in the four corners completely.
+
+Replace them with more of the same smooth, clean, uniform warm amber radial gradient that fills the
+rest of the background, so the background is one continuous undecorated gradient reaching all four
+corners of the square canvas.
+
+The four corner pixels must be plain background gradient color. No white anywhere. No rounded or
+curved canvas corners. No border, no frame, no vignette ring, no decorative motif, no pixel blocks,
+no stepped or staircase edges, no mosaic tiles, no pattern of any kind anywhere in the background.
+The canvas edge is a plain straight square cut.
+
+Keep everything else identical to the attached image. Do not add text, letters, numbers, arms, legs,
+hands or feet. Do not change the size or position of the remote in the frame.

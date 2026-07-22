@@ -1,0 +1,73 @@
+A square poster illustration of a single anthropomorphic TV remote control character, cel-shaded
+anime style. This is a flat rectangular painting that completely covers a square canvas, edge to
+edge, exactly like a cropped poster or album cover. It is NOT a badge, NOT a sticker, NOT a rounded
+app tile — do not draw any icon-shaped container.
+
+SUBJECT
+A chunky, friendly TV remote — JUST THE HANDHELD DEVICE ITSELF, a floating object with no body, no
+arms, no legs, no hands and no feet. Rounded-rectangle slab shape, generous chunky toy-like volume,
+tilted on a lively diagonal of roughly 20 degrees and seen in a three-quarter view from the front, as
+though hovering eagerly toward the viewer.
+
+Its upper third is a large glowing rectangular SCREEN PANEL, noticeably lighter and brighter than the
+dark body, and that screen is its face. Below the screen sits a tidy cluster of chunky oversized
+buttons: one round directional pad and three or four large pill-shaped buttons. A short stubby
+antenna rises from the top corner with a soft round glowing tip.
+
+EXPRESSION — CRITICAL, THE WHOLE POINT
+The character is EXCITED, delighted, joyful and full of fun — a burst of happy energy, like it just
+heard great news. Both eyes are WIDE OPEN, big, round and sparkling, with large bright catchlights and
+star-like glints of excitement. Both eyebrows are raised HIGH and symmetrically in cheerful surprise,
+curved upward. A big, warm, open-mouthed happy smile — a broad joyful grin, teeth-free, mouth open in
+delight. Two small soft blush marks on the cheeks of the screen. The whole face reads as beaming,
+enthusiastic, playful and welcoming.
+
+STYLE
+Classic cel-shaded anime / modern TV-anime key-art rendering. Thick, confident, clean ink outlines of
+even weight. FLAT color fills with hard-edged, sharply defined shadow shapes — two tones per surface
+at most, no soft airbrush gradients on the character, no painterly texture, no visible brush strokes.
+Bold rim light along the upper-left edge of the character. Crisp specular highlight shapes on the
+plastic shell. High contrast, saturated, punchy, poster-like.
+
+COLOR
+{{PALETTE}}
+
+COMPOSITION
+CRITICAL — THE FOUR CORNERS: the background glow must reach and completely fill all four corners of
+the square canvas. The top-left, top-right, bottom-left and bottom-right corner pixels must all be
+painted background color. There must be NO white anywhere in the image, and absolutely no rounded or
+curved canvas corners. Picture the artwork continuing past the edge of the frame and being cropped
+square.
+
+The background must be a SMOOTH, CLEAN, UNIFORM radial gradient across the entire canvas, completely
+undecorated. Do NOT place any ornament, motif, pattern, texture, blocks, tiles or shapes in or near
+the corners — each corner is simply more of the same smooth gradient. The canvas edge is a plain
+straight cut with no decoration whatsoever.
+
+Perfectly square, full-bleed artwork that extends all the way to all four edges with no margin. Tight,
+punchy, zoomed-in framing: the remote is centered and BIG, filling roughly 85% of the frame height and
+75% of the frame width, so it dominates the composition. Only a slim band of background is visible
+around it. Err on the side of too large rather than too small. Bold, instantly readable silhouette
+that stays legible when scaled down to a tiny 40x40 pixel icon: few large shapes, no fine detail, no
+thin lines, no small scattered elements, no busy patterning.
+
+NEGATIVE — do not include any of the following
+No smirk, no sly grin, no devious or smug or mischievous or scheming expression, no half-lidded or
+narrowed or squinting eyes, no single raised eyebrow, no asymmetric arched eyebrow, no furrowed or
+angled-down angry brows, no side-eye, no evil look, no sleepy look, no neutral deadpan stare.
+No text, no letters, no numbers, no words, no typography, no logo, no watermark, no signature.
+No rounded corners, no curved canvas edges, no circular crop, no border, no frame, no outline around
+the canvas edge, no vignette ring, no badge shape, no rounded-square tile, no sticker die-cut edge,
+no white margin, no white corners, no white background anywhere, no squircle, no superellipse.
+No transparency, no alpha channel, no checkerboard pattern — the background must be fully opaque and
+painted edge to edge.
+No app-store mockup, no phone or device frame, no screen bezel, no hand, no fingers, no human figure,
+no person, no pet.
+No photorealism, no 3D render, no clay or plasticine look, no glossy web-2.0 bubble icon, no drop
+shadow cast onto the canvas behind the subject, no reflection floor, no drop-shadow beneath.
+No motion lines, no speed lines, no sparkle particles, no confetti, no starbursts, no clutter.
+No pixel art, no 8-bit blocks, no stepped or staircase edges, no jagged blocky corner ornament, no
+mosaic tiles, no checkered pattern, no decorative corner flourish, no repeating background motif.
+No arms, no legs, no hands, no feet, no fingers, no limbs of any kind, no gloves, no shoes, no
+standing pose, no walking pose, no full-body mascot, no cartoon character body — the remote is a
+floating handheld object and nothing more.

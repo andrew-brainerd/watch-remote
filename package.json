@@ -10,6 +10,7 @@
     "ui:build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "ios:device": "bash scripts/ios-device.sh",
+    "icons": "bash scripts/icons.sh",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
