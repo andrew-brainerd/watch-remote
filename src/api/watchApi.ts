@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { firebaseAuth } from '@/firebase';
 import { useConfigStore } from '@/stores/configStore';
+import { reportAppError } from '@/api/errorReporter';
 import type {
   ShowType,
   StreamingServiceRef,
@@ -20,7 +21,10 @@ const idToken = async (): Promise<string> => {
 const call = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
   const token = await idToken();
   const base = useConfigStore.getState().apiBase;
-  return invoke<T>('watch_api', { method, path, token, body: body ?? null, base });
+  return invoke<T>('watch_api', { method, path, token, body: body ?? null, base }).catch((error: unknown) => {
+    void reportAppError(`watch_api:${method} ${path.split('?')[0]}`, String(error));
+    throw error;
+  });
 };
 
 export const getWatchList = (): Promise<WatchListResponse> => call('GET', '/watch/list?client=roku');

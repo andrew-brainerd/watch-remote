@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from '@/App';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { reportAppError } from '@/api/errorReporter';
 import '@/app.css';
 
 const rootEl = document.getElementById('root');
@@ -18,8 +19,14 @@ const showGlobalError = (msg: string) => {
     'position:fixed;inset:0;z-index:9999;margin:0;padding:16px;overflow:auto;background:#0a0a0b;color:#fca5a5;font:12px/1.4 monospace;white-space:pre-wrap;word-break:break-word';
   document.body.appendChild(el);
 };
-window.addEventListener('error', e => showGlobalError(e.message + (e.error?.stack ? `\n${e.error.stack}` : '')));
-window.addEventListener('unhandledrejection', e => showGlobalError(String(e.reason?.stack ?? e.reason)));
+window.addEventListener('error', e => {
+  showGlobalError(e.message + (e.error?.stack ? `\n${e.error.stack}` : ''));
+  void reportAppError('window.onerror', e.message, { stack: String(e.error?.stack ?? '') });
+});
+window.addEventListener('unhandledrejection', e => {
+  showGlobalError(String(e.reason?.stack ?? e.reason));
+  void reportAppError('unhandledrejection', String(e.reason), { stack: String(e.reason?.stack ?? '') });
+});
 
 createRoot(rootEl).render(
   <StrictMode>

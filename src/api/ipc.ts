@@ -1,4 +1,13 @@
 import { invoke } from '@tauri-apps/api/core';
+import { reportAppError } from '@/api/errorReporter';
+
+// Every Tauri command goes through here so a rejection is reported instead of vanishing into a
+// `.catch(() => {})` at the call site.
+const call = <T>(command: string, args?: Record<string, unknown>): Promise<T> =>
+  invoke<T>(command, args).catch((error: unknown) => {
+    void reportAppError(`invoke:${command}`, String(error));
+    throw error;
+  });
 
 export interface RokuDeviceInfo {
   name: string;
@@ -26,21 +35,21 @@ export interface RokuMediaPlayer {
 
 // Cast (or plain-launch) an app. Pass contentId + mediaType to deep-link into a title.
 export const rokuLaunch = (ip: string, channelId: string, contentId?: string, mediaType?: string): Promise<void> =>
-  invoke('roku_launch', { ip, channelId, contentId, mediaType });
+  call('roku_launch', { ip, channelId, contentId, mediaType });
 
 export const rokuInstall = (ip: string, channelId: string): Promise<void> =>
-  invoke('roku_install', { ip, channelId });
+  call('roku_install', { ip, channelId });
 
-export const rokuKeypress = (ip: string, key: string): Promise<void> => invoke('roku_keypress', { ip, key });
+export const rokuKeypress = (ip: string, key: string): Promise<void> => call('roku_keypress', { ip, key });
 
-export const rokuType = (ip: string, text: string): Promise<void> => invoke('roku_type', { ip, text });
+export const rokuType = (ip: string, text: string): Promise<void> => call('roku_type', { ip, text });
 
-export const rokuDeviceInfo = (ip: string): Promise<RokuDeviceInfo> => invoke('roku_device_info', { ip });
+export const rokuDeviceInfo = (ip: string): Promise<RokuDeviceInfo> => call('roku_device_info', { ip });
 
-export const rokuApps = (ip: string): Promise<RokuApp[]> => invoke('roku_apps', { ip });
+export const rokuApps = (ip: string): Promise<RokuApp[]> => call('roku_apps', { ip });
 
 // An app/input icon as a data: URL (fetched from the TV). Rejects if the device has no icon for it.
-export const rokuAppIcon = (ip: string, id: string): Promise<string> => invoke('roku_app_icon', { ip, id });
+export const rokuAppIcon = (ip: string, id: string): Promise<string> => call('roku_app_icon', { ip, id });
 
 // Current playback state on the device (ECP /query/media-player).
-export const rokuMediaPlayer = (ip: string): Promise<RokuMediaPlayer> => invoke('roku_media_player', { ip });
+export const rokuMediaPlayer = (ip: string): Promise<RokuMediaPlayer> => call('roku_media_player', { ip });
