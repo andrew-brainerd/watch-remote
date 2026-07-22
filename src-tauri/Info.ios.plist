@@ -2,26 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <!-- Names the asset-catalog icon set. Apple REQUIRES this top-level key for iOS 11+ apps that use
-       an asset catalog, and it is what App Store Connect / Transporter read to resolve the icon.
-       Xcode normally injects it from ASSETCATALOG_COMPILER_APPICON_NAME, but Tauri's generated
-       project.yml never sets that, so without this line only the nested copies inside CFBundleIcons
-       exist and tooling shows no icon. Must match the .appiconset name ("AppIcon"). -->
+  <!-- Must match the .appiconset name. -->
   <key>CFBundleIconName</key>
   <string>AppIcon</string>
-  <!-- Prompts for Local Network access so the app can reach the Roku over Wi-Fi (iOS 14+). -->
   <key>NSLocalNetworkUsageDescription</key>
   <string>Rimokon Miru finds and controls your Roku over your local Wi-Fi.</string>
-  <!-- The background-image `<input type="file">` makes WKWebView offer "Take Photo or Video"; iOS
-       terminates the app if that is tapped with no camera purpose string. The photo-library route
-       needs no string — WKWebView uses the out-of-process PHPicker on iOS 14+. -->
   <key>NSCameraUsageDescription</key>
   <string>Rimokon Miru uses the camera only if you take a photo to set as your app background.</string>
-  <!-- Declares we only use standard HTTPS/system crypto, so App Store Connect skips the export
-       compliance questionnaire on every TestFlight upload. -->
   <key>ITSAppUsesNonExemptEncryption</key>
   <false/>
-  <!-- Allows plain-HTTP requests to LAN addresses (the Roku ECP + a local dev API) without disabling ATS. -->
+  <!-- Permits plain HTTP to the Roku's LAN address without disabling ATS globally. -->
   <key>NSAppTransportSecurity</key>
   <dict>
     <key>NSAllowsLocalNetworking</key>
