@@ -71,6 +71,6 @@ export const useBackgroundStore = create<BackgroundState>()(
         }
       }
     }),
-    { name: 'watch-remote-background' }
+    { name: 'rimokon-miru-background' }
   )
 );

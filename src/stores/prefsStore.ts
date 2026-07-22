@@ -25,6 +25,6 @@ export const usePrefsStore = create<PrefsState>()(
       switchToRemoteOnCast: true,
       setSwitchToRemoteOnCast: switchToRemoteOnCast => set({ switchToRemoteOnCast })
     }),
-    { name: 'watch-remote-prefs' }
+    { name: 'rimokon-miru-prefs' }
   )
 );

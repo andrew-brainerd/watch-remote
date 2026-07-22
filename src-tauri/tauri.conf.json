@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Watch Remote",
-  "version": "0.0.0",
-  "identifier": "dev.brainerd.watchremote",
+  "productName": "Rimokon Miru",
+  "version": "0.22.0",
+  "identifier": "dev.brainerd.rimokonmiru",
   "build": {
     "beforeDevCommand": "pnpm ui:dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Watch Remote",
+        "title": "Rimokon Miru",
         "width": 420,
         "height": 800,
         "minWidth": 360,
@@ -31,6 +31,10 @@
     "targets": "all",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "category": "Utility",
-    "shortDescription": "Watch tracker and Roku remote"
+    "shortDescription": "Watch tracker and Roku remote",
+    "iOS": {
+      "developmentTeam": "V6J999TY63",
+      "minimumSystemVersion": "14.0"
+    }
   }
 }

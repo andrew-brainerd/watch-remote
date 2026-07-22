@@ -23,7 +23,7 @@ export const Login = () => {
 
   return (
     <form onSubmit={submit} className="mx-auto flex w-full max-w-sm flex-col gap-3 px-6 pt-16">
-      <h1 className="text-center text-xl font-semibold text-neutral-100">Watch Remote</h1>
+      <h1 className="text-center text-xl font-semibold text-neutral-100">Rimokon Miru</h1>
       <p className="mb-2 text-center text-xs text-neutral-500">Sign in with your Brainerd account</p>
       <input
         type="email"

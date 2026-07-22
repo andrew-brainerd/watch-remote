@@ -32,6 +32,6 @@ export const useCastTitleStore = create<CastTitleStore>()(
           return { titles };
         })
     }),
-    { name: 'watch-remote-cast-titles' }
+    { name: 'rimokon-miru-cast-titles' }
   )
 );

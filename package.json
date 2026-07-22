@@ -1,6 +1,6 @@
 {
-  "name": "watch-remote",
-  "version": "0.0.0",
+  "name": "rimokon-miru",
+  "version": "0.22.0",
   "private": true,
   "type": "module",
   "scripts": {

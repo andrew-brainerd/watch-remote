@@ -1,13 +1,13 @@
 [package]
-name = "watch-remote"
-version = "0.0.0"
-description = "Watch Remote — /watch tracker + Roku remote"
+name = "rimokon-miru"
+version = "0.22.0"
+description = "Rimokon Miru — /watch tracker + Roku remote"
 authors = ["Andrew Brainerd"]
 edition = "2021"
 rust-version = "1.77"
 
 [lib]
-name = "watch_remote_lib"
+name = "rimokon_miru_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -4,7 +4,16 @@
 <dict>
   <!-- Prompts for Local Network access so the app can reach the Roku over Wi-Fi (iOS 14+). -->
   <key>NSLocalNetworkUsageDescription</key>
-  <string>Watch Remote finds and controls your Roku over your local Wi-Fi.</string>
+  <string>Rimokon Miru finds and controls your Roku over your local Wi-Fi.</string>
+  <!-- The background-image `<input type="file">` makes WKWebView offer "Take Photo or Video"; iOS
+       terminates the app if that is tapped with no camera purpose string. The photo-library route
+       needs no string — WKWebView uses the out-of-process PHPicker on iOS 14+. -->
+  <key>NSCameraUsageDescription</key>
+  <string>Rimokon Miru uses the camera only if you take a photo to set as your app background.</string>
+  <!-- Declares we only use standard HTTPS/system crypto, so App Store Connect skips the export
+       compliance questionnaire on every TestFlight upload. -->
+  <key>ITSAppUsesNonExemptEncryption</key>
+  <false/>
   <!-- Allows plain-HTTP requests to LAN addresses (the Roku ECP + a local dev API) without disabling ATS. -->
   <key>NSAppTransportSecurity</key>
   <dict>

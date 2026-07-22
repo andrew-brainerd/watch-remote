@@ -26,6 +26,6 @@ export const useConfigStore = create<ConfigState>()(
       setApiBase: base => set({ apiBase: base.trim() || DEFAULT_API_BASE })
     }),
     // Key bumped so devices drop any stale persisted base and re-default to the platform base above.
-    { name: 'watch-remote-config-2' }
+    { name: 'rimokon-miru-config' }
   )
 );

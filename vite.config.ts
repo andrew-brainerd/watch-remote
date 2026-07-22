@@ -28,5 +28,5 @@ export default defineConfig({
       ignored: ['**/src-tauri/**']
     }
   },
-  envPrefix: ['VITE_', 'WATCH_REMOTE_']
+  envPrefix: ['VITE_', 'RIMOKON_MIRU_']
 });

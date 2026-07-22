@@ -93,6 +93,6 @@ export const useDeviceStore = create<DeviceState>()(
         }
       }
     }),
-    { name: 'watch-remote-devices' }
+    { name: 'rimokon-miru-devices' }
   )
 );

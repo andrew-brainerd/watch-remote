@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Build a debug iOS app and install + launch it on a connected iPhone via `devicectl`.
-# Works around Tauri's broken `ios-deploy` path on iOS 26 (see docs/specs/watch-remote.md, WRM-D):
+# Works around Tauri's broken `ios-deploy` path on iOS 26 (see docs/specs/rimokon-miru.md, WRM-D):
 # Tauri drives the Rust compile (Xcode Run can't find cargo), then Apple's devicectl does the install.
 set -euo pipefail
 
 TEAM="${APPLE_DEVELOPMENT_TEAM:-V6J999TY63}"
-BUNDLE_ID="dev.brainerd.watchremote"
+BUNDLE_ID="dev.brainerd.rimokonmiru"
 BUILD_DIR="src-tauri/gen/apple/build/arm64"
 
 echo "▶ Building debug iOS app (team ${TEAM})…"
@@ -25,4 +25,4 @@ xcrun devicectl device install app --device "${DEVICE_ID}" "${IPA}"
 
 echo "▶ Launching…"
 xcrun devicectl device process launch --device "${DEVICE_ID}" "${BUNDLE_ID}" >/dev/null 2>&1 || true
-echo "✅ Installed and launched Watch Remote on device ${DEVICE_ID}."
+echo "✅ Installed and launched Rimokon Miru on device ${DEVICE_ID}."

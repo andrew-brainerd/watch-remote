@@ -7,9 +7,9 @@ pub fn ping() -> &'static str {
     "pong"
 }
 
-// brainerd-api base. Override at build time with WATCH_REMOTE_API_BASE; defaults to the local dev API.
+// brainerd-api base. Override at build time with RIMOKON_MIRU_API_BASE; defaults to the local dev API.
 fn api_base() -> String {
-    option_env!("WATCH_REMOTE_API_BASE")
+    option_env!("RIMOKON_MIRU_API_BASE")
         .unwrap_or("https://local.brainerd.dev:5002/api")
         .to_string()
 }
@@ -41,7 +41,7 @@ pub async fn watch_api(
     let mut request = client
         .request(http_method, &url)
         .header("Authorization", format!("Bearer {token}"))
-        .header("X-Client", "watch-remote");
+        .header("X-Client", "rimokon-miru");
     if let Some(payload) = body {
         request = request.json(&payload);
     }
