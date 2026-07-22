@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { rokuKeypress } from '@/api/ipc';
+import { tapFeedback } from '@/utils/haptics';
 import {
   BackIcon,
   DownIcon,
@@ -38,7 +39,16 @@ export const remoteButtonClass =
 export const remoteIconClass = 'h-6 w-6';
 
 const RemoteButton = ({ label, icon, onClick }: RemoteButtonProps) => (
-  <button type="button" onClick={onClick} aria-label={label} title={label} className={remoteButtonClass}>
+  <button
+    type="button"
+    onClick={() => {
+      tapFeedback();
+      onClick();
+    }}
+    aria-label={label}
+    title={label}
+    className={remoteButtonClass}
+  >
     {icon}
   </button>
 );

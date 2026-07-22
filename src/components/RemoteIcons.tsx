@@ -160,3 +160,18 @@ export const VolumeUpIcon = (p: IconProps) => (
     <path d="M19 6.5a8 8 0 0 1 0 11" />
   </Stroke>
 );
+
+export const SendIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M21 3 10.5 13.5" />
+    <path d="M21 3 14.5 21l-4-7.5L3 9.5 21 3Z" />
+  </Stroke>
+);
+
+export const BackspaceIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9L2.5 12 9 5Z" />
+    <path d="M13 9.5 17.5 14" />
+    <path d="M17.5 9.5 13 14" />
+  </Stroke>
+);

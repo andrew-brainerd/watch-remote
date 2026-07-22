@@ -2,6 +2,7 @@ import { useDeviceStore } from '@/stores/deviceStore';
 import { NowPlaying } from '@/components/NowPlaying';
 import { PinnedShortcuts } from '@/components/PinnedShortcuts';
 import { Remote } from '@/components/Remote';
+import { TextEntry } from '@/components/TextEntry';
 
 export const RemoteTab = () => {
   const devices = useDeviceStore(s => s.devices);
@@ -14,6 +15,7 @@ export const RemoteTab = () => {
         <>
           <NowPlaying ip={active.ip} />
           <Remote ip={active.ip} />
+          <TextEntry ip={active.ip} />
           <PinnedShortcuts ip={active.ip} pinnedIds={active.pinnedShortcuts ?? []} />
         </>
       ) : (
