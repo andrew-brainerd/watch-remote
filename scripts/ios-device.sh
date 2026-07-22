@@ -15,10 +15,19 @@ IPA=$(ls -t "${BUILD_DIR}"/*.ipa 2>/dev/null | head -1 || true)
 [ -n "${IPA}" ] || { echo "✖ No .ipa found in ${BUILD_DIR}"; exit 1; }
 echo "▶ Built ${IPA}"
 
+# Pick a usable device. A cabled iPhone reports state "connected", but one paired over Wi-Fi reports
+# "available (paired)" — matching only "connected" silently failed every wireless deploy.
+# Order matters: drop "unavailable" rows FIRST, because that word contains the substring "available".
 DEVICE_ID=$(xcrun devicectl list devices 2>/dev/null \
-  | grep -i connected | grep -iv unavailable \
+  | grep -iv unavailable \
+  | grep -iE 'connected|available' \
   | grep -oE '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}' | head -1 || true)
-[ -n "${DEVICE_ID}" ] || { echo "✖ No connected iPhone (unlock it, enable Developer Mode, Trust the Mac)."; exit 1; }
+[ -n "${DEVICE_ID}" ] || {
+  echo "✖ No usable iPhone found. Unlock it, enable Developer Mode, and Trust the Mac."
+  echo "  Devices devicectl can see right now:"
+  xcrun devicectl list devices 2>/dev/null | sed 's/^/    /'
+  exit 1
+}
 
 echo "▶ Installing to device ${DEVICE_ID}…"
 xcrun devicectl device install app --device "${DEVICE_ID}" "${IPA}"
