@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  <!-- Names the asset-catalog icon set. Apple REQUIRES this top-level key for iOS 11+ apps that use
+       an asset catalog, and it is what App Store Connect / Transporter read to resolve the icon.
+       Xcode normally injects it from ASSETCATALOG_COMPILER_APPICON_NAME, but Tauri's generated
+       project.yml never sets that, so without this line only the nested copies inside CFBundleIcons
+       exist and tooling shows no icon. Must match the .appiconset name ("AppIcon"). -->
+  <key>CFBundleIconName</key>
+  <string>AppIcon</string>
   <!-- Prompts for Local Network access so the app can reach the Roku over Wi-Fi (iOS 14+). -->
   <key>NSLocalNetworkUsageDescription</key>
   <string>Rimokon Miru finds and controls your Roku over your local Wi-Fi.</string>
