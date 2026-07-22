@@ -1,6 +1,6 @@
 [package]
 name = "rimokon-miru"
-version = "0.23.1"
+version = "0.24.0"
 description = "Rimokon Miru — /watch tracker + Roku remote"
 authors = ["Andrew Brainerd"]
 edition = "2021"
