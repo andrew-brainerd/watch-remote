@@ -4,5 +4,5 @@
   "description": "Mobile-only capabilities for Rimokon Miru",
   "platforms": ["iOS", "android"],
   "windows": ["main"],
-  "permissions": ["haptics:default"]
+  "permissions": ["haptics:allow-impact-feedback", "haptics:allow-notification-feedback"]
 }
